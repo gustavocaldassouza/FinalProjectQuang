@@ -136,6 +136,22 @@ namespace FinalProjectQuang.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public async Task<IActionResult> Reports()
+        {
+            var ownerEmail = User.Identity?.Name;
+            var owner = await _context.Users.FirstOrDefaultAsync(u => u.Email == ownerEmail);
+            if (owner == null) return NotFound();
+
+            var reports = await _context.Messages
+                .Include(m => m.Sender)
+                .Include(m => m.Property)
+                .Where(m => m.ReceiverId == owner.UserId)
+                .OrderByDescending(m => m.Timestamp)
+                .ToListAsync();
+
+            return View(reports);
+        }
+
         private bool UserExists(int id)
         {
             return _context.Users.Any(e => e.UserId == id);

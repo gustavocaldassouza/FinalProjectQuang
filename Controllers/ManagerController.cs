@@ -334,6 +334,39 @@ namespace FinalProjectQuang.Controllers
             return RedirectToAction(nameof(Appointments));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReportToOwner(int propertyId, string reportContent)
+        {
+            var managerEmail = User.Identity?.Name;
+            var manager = await _context.Users.FirstOrDefaultAsync(u => u.Email == managerEmail);
+            
+            var property = await _context.Properties.FindAsync(propertyId);
+            if (property == null || manager == null) return NotFound();
+
+            if (string.IsNullOrWhiteSpace(reportContent))
+            {
+                TempData["ErrorMessage"] = "Report content cannot be empty.";
+                return RedirectToAction(nameof(Details), new { id = propertyId });
+            }
+
+            var report = new Message
+            {
+                SenderId = manager.UserId,
+                ReceiverId = property.OwnerId,
+                PropertyId = propertyId,
+                Content = $"[PROPERTY REPORT]: {reportContent}",
+                Timestamp = DateTime.UtcNow,
+                IsRead = false
+            };
+
+            _context.Messages.Add(report);
+            await _context.SaveChangesAsync();
+
+            TempData["StatusMessage"] = "Event report has been successfully transmitted to the property owner.";
+            return RedirectToAction(nameof(Details), new { id = propertyId });
+        }
+
         // --- Messages ---
 
         public async Task<IActionResult> Messages()

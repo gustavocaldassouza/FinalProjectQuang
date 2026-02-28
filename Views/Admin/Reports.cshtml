@@ -1,0 +1,120 @@
+@model IEnumerable<FinalProjectQuang.Models.Message>
+
+@{
+    ViewData["Title"] = "Executive Reports & Analytics";
+}
+
+<div class="container premium-container fade-in">
+    <!-- Header with Tabs -->
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-7">
+            <h1 class="display-6 fw-bold mb-1 text-dark">Executive Oversight</h1>
+            <p class="text-muted fs-6">Monitor critical status reports and management communications across your portfolio.</p>
+        </div>
+        <div class="col-lg-5 text-lg-end">
+            <div class="btn-group p-1 bg-light rounded-pill shadow-sm" style="border: 1px solid rgba(0,0,0,0.05);">
+                <a asp-action="Index" class="btn btn-sm rounded-pill px-4 py-2 border-0 text-muted fw-bold">User Management</a>
+                <a asp-action="Reports" class="btn btn-sm rounded-pill px-4 py-2 bg-white shadow-sm border-0 text-primary fw-bold">Event Reports</a>
+            </div>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <div class="glass-card p-5 rounded-5 border border-dashed mx-auto" style="max-width: 600px;">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-4 d-inline-block mb-4">
+                    <i class="bi bi-file-earmark-bar-graph fs-1"></i>
+                </div>
+                <h3 class="fw-bold">No executive reports found</h3>
+                <p class="text-muted">You haven't received any status reports from your property managers yet. Once they submit reports from the property details portal, they will appear here.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <!-- Summary Stats -->
+            <div class="col-12">
+                <div class="row g-4 mb-2">
+                    <div class="col-md-4">
+                        <div class="glass-card p-4 border-start border-primary border-4 shadow-sm h-100">
+                            <span class="text-muted small text-uppercase fw-bold d-block mb-1">Total Reports Received</span>
+                            <span class="h2 fw-bold mb-0">@Model.Count()</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="glass-card p-4 border-start border-success border-4 shadow-sm h-100">
+                            <span class="text-muted small text-uppercase fw-bold d-block mb-1">Estate Activity</span>
+                            <span class="h2 fw-bold mb-0">@Model.GroupBy(m => m.PropertyId).Count() <small class="fs-6 fw-normal text-muted">Properties</small></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="glass-card p-4 border-start border-warning border-4 shadow-sm h-100">
+                            <span class="text-muted small text-uppercase fw-bold d-block mb-1">Latest Update</span>
+                            <span class="fw-bold mb-0">@Model.First().Timestamp.ToString("MMM dd, HH:mm")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports List -->
+            @foreach (var report in Model)
+            {
+                var isCritical = report.Content.Contains("REPORT", StringComparison.OrdinalIgnoreCase);
+                <div class="col-12">
+                    <div class="glass-card shadow-sm hover-scale-sm border-0 overflow-hidden transform-transition">
+                        <div class="row g-0">
+                            <div class="col-md-3 bg-light d-flex flex-column justify-content-center p-4 border-end border-opacity-10">
+                                <div class="d-flex align-items-center gap-3 mb-2">
+                                    <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary">
+                                        <i class="bi bi-building"></i>
+                                    </div>
+                                    <h6 class="fw-bold mb-0">@report.Property?.Name</h6>
+                                </div>
+                                <p class="x-small text-muted mb-0"><i class="bi bi-geo-alt me-1"></i> @report.Property?.Address</p>
+                                <div class="mt-3">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1 fw-bold x-small">
+                                        PROCESSED BY @report.Sender?.FullName.ToUpper()
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-9 p-4 bg-white">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        @if (isCritical)
+                                        {
+                                            <span class="badge bg-danger rounded-pill px-3 py-1 x-small fw-bold mb-2">OFFICIAL REPORT</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary bg-opacity-10 text-muted rounded-pill px-3 py-1 x-small fw-bold mb-2">GENERAL UPDATE</span>
+                                        }
+                                    </div>
+                                    <span class="text-muted small"><i class="bi bi-clock me-1"></i> @report.Timestamp.ToString("MMMM dd, yyyy - HH:mm")</span>
+                                </div>
+                                <div class="p-3 bg-light rounded-4 mb-0 border border-light">
+                                    <p class="mb-0 fs-6 text-dark" style="line-height: 1.6; white-space: pre-wrap;">@report.Content.Replace("[PROPERTY REPORT]: ", "")</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .hover-scale-sm:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+    }
+    .transform-transition {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .x-small {
+        font-size: 0.7rem;
+        letter-spacing: 0.5px;
+    }
+</style>

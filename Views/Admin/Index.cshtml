@@ -5,9 +5,9 @@
 }
 
 <div class="container premium-container fade-in">
-    <div class="row align-items-center mb-4">
+    <div class="row align-items-center mb-5">
         <div class="col-lg-5">
-            <h1 class="h2 fw-bold mb-1">User Command Center</h1>
+            <h1 class="display-6 fw-bold mb-1 text-dark">Executive Oversight</h1>
             <p class="text-muted small">Administrative authority over property managers and residents.</p>
         </div>
         <div class="col-lg-4">
@@ -17,6 +17,15 @@
             </div>
         </div>
         <div class="col-lg-3 text-lg-end">
+            <div class="btn-group p-1 bg-light rounded-pill shadow-sm" style="border: 1px solid rgba(0,0,0,0.05);">
+                <a asp-action="Index" class="btn btn-sm rounded-pill px-4 py-2 bg-white shadow-sm border-0 text-primary fw-bold">User Management</a>
+                <a asp-action="Reports" class="btn btn-sm rounded-pill px-4 py-2 border-0 text-muted fw-bold">Event Reports</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12 text-end">
             <a asp-action="Create" class="btn btn-premium btn-primary-premium py-2 px-4 shadow-sm rounded-pill">
                 <i class="bi bi-person-plus-fill me-2"></i> Provision New Account
             </a>
