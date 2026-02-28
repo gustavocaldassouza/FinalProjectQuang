@@ -1,0 +1,35 @@
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center py-5 fade-in">
+    <h1 class="display-4 fw-bold">Welcome to PropertyRental</h1>
+    <p class="lead text-muted">A modern solution for owners, managers, and tenants.</p>
+    
+    <div class="row mt-5 justify-content-center">
+        <div class="col-md-3">
+            <div class="admin-card text-center h-100">
+                <i class="bi bi-shield-check display-3 text-primary"></i>
+                <h4 class="mt-3">Owners</h4>
+                <p class="small">Oversee managers and manage your building portfolio.</p>
+                <a asp-controller="Admin" asp-action="Index" class="btn-premium btn-primary-premium w-100">Admin Portal</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="admin-card text-center h-100">
+                <i class="bi bi-building display-3 text-success"></i>
+                <h4 class="mt-3">Managers</h4>
+                <p class="small">Handle listings, status updates, and viewings.</p>
+                <a asp-controller="Manager" asp-action="Properties" class="btn-premium btn-primary-premium w-100" style="background: #27ae60">Manage Portals</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="admin-card text-center h-100">
+                <i class="bi bi-house-heart display-3 text-danger"></i>
+                <h4 class="mt-3">Tenants</h4>
+                <p class="small">Find available units and request viewing appointments.</p>
+                <a asp-controller="Tenant" asp-action="AvailableApartments" class="btn-premium btn-danger-premium w-100">Browse Listings</a>
+            </div>
+        </div>
+    </div>
+</div>

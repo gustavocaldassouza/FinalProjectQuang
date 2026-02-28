@@ -16,7 +16,7 @@ namespace FinalProjectQuang.Data
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<Message> Messages { get; set; }
 
-        protected override void OnModelCreating(ModelCreatingBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
