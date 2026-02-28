@@ -12,7 +12,7 @@
     <div class="row align-items-end mb-4">
         <div class="col-lg-7">
             <h1 class="display-5 fw-bold mb-2">Refined Living Spaces</h1>
-            <p class="text-muted fs-6">Showing @Model.Count() exclusively curated residences available for immediate acquisition.</p>
+            <p class="text-muted fs-6">Showing <span id="apartmentCount">@Model.Count()</span> exclusively curated residences available for immediate acquisition.</p>
         </div>
         <div class="col-lg-5 text-lg-end">
             <nav aria-label="breadcrumb">
@@ -26,38 +26,47 @@
 
     <!-- Advanced Search & Filter -->
     <div class="glass-card p-3 p-lg-4 mb-4 border-0 shadow-lg" style="margin-top: -1rem;">
-        <form asp-action="AvailableApartments" method="get" class="row g-4 align-items-center">
+        <div class="row g-4 align-items-center">
             <div class="col-lg-4">
                 <label class="form-label fw-semibold mb-2">Location or Building</label>
                 <div class="input-group input-group-lg shadow-sm">
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-primary"></i></span>
-                    <input type="text" name="searchString" class="form-control border-start-0 ps-0 fs-6" placeholder="Try 'Montréal' or 'Executive Towers'..." value="@Context.Request.Query["searchString"]" />
+                    <input type="text" id="searchInput" class="form-control border-start-0 ps-0 fs-6" placeholder="Try 'Montréal' or 'Executive Towers'..." />
                 </div>
             </div>
             <div class="col-lg-3">
                 <label class="form-label fw-semibold mb-2">Price Range (Min)</label>
                 <div class="input-group input-group-lg shadow-sm">
                     <span class="input-group-text bg-white border-end-0 text-muted">$</span>
-                    <input type="number" name="minRent" class="form-control border-start-0 ps-0 fs-6" placeholder="Minimum" value="@Context.Request.Query["minRent"]" />
+                    <input type="number" id="minRentInput" class="form-control border-start-0 ps-0 fs-6" placeholder="Minimum" />
                 </div>
             </div>
             <div class="col-lg-3">
                 <label class="form-label fw-semibold mb-2">Price Range (Max)</label>
                 <div class="input-group input-group-lg shadow-sm">
                     <span class="input-group-text bg-white border-end-0 text-muted">$</span>
-                    <input type="number" name="maxRent" class="form-control border-start-0 ps-0 fs-6" placeholder="Maximum" value="@Context.Request.Query["maxRent"]" />
+                    <input type="number" id="maxRentInput" class="form-control border-start-0 ps-0 fs-6" placeholder="Maximum" />
                 </div>
             </div>
             <div class="col-lg-2">
                 <label class="form-label invisible d-none d-lg-block mb-2">Action</label>
-                <button type="submit" class="btn btn-premium btn-primary-premium w-100 py-3 shadow-lg">
-                    Apply Filters
+                <button type="button" id="resetFilters" class="btn btn-premium btn-primary-premium w-100 py-3 shadow-lg">
+                    Reset
                 </button>
             </div>
-        </form>
+        </div>
     </div>
 
     <div class="row g-5">
+        <div id="noResultsMessage" class="col-12 text-center py-5 d-none">
+            <div class="bg-white p-5 rounded-5 shadow-sm border border-dashed">
+                <i class="bi bi-search display-1 text-muted opacity-25 mb-4"></i>
+                <h3 class="fw-bold">No residences match your criteria</h3>
+                <p class="text-muted">Try adjusting your filters or browsing all our prestige locations.</p>
+                <button type="button" onclick="location.reload()" class="btn btn-outline-primary mt-3 rounded-pill px-4">Clear All Filters</button>
+            </div>
+        </div>
+        
         @if (!Model.Any())
         {
             <div class="col-12 text-center py-5">
@@ -76,7 +85,9 @@
             {
                 var imgUrl = images[i % images.Length];
                 i++;
-                <div class="col-lg-4 col-md-6 mb-2">
+                <div class="col-lg-4 col-md-6 mb-2 apartment-card" 
+                     data-rent="@item.Rent" 
+                     data-search="@(item.ApartmentNumber.ToLower() + " " + item.Property?.Name.ToLower() + " " + item.Property?.City.ToLower() + " " + item.Property?.Address.ToLower())">
                     <div class="card border-0 glass-card h-100 overflow-hidden shadow-hover" style="border-radius: 1rem;">
                         <div class="position-relative overflow-hidden" style="height: 200px;">
                             <img src="@imgUrl" class="card-img-top h-100 w-100 object-fit-cover transition-scale" alt="Luxury Interior">
@@ -139,3 +150,59 @@
         transform: scale(1.1);
     }
 </style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            const searchInput = $('#searchInput');
+            const minRentInput = $('#minRentInput');
+            const maxRentInput = $('#maxRentInput');
+            const resetBtn = $('#resetFilters');
+            const cards = $('.apartment-card');
+            const countLabel = $('#apartmentCount');
+            const noResults = $('#noResultsMessage');
+
+            function filterApartments() {
+                const query = searchInput.val().toLowerCase();
+                const minRent = parseFloat(minRentInput.val()) || 0;
+                const maxRent = parseFloat(maxRentInput.val()) || Infinity;
+
+                let visibleCount = 0;
+
+                cards.each(function() {
+                    const card = $(this);
+                    const rent = parseFloat(card.data('rent'));
+                    const searchData = card.data('search');
+
+                    const matchesSearch = searchData.includes(query);
+                    const matchesPrice = rent >= minRent && rent <= maxRent;
+
+                    if (matchesSearch && matchesPrice) {
+                        card.show();
+                        visibleCount++;
+                    } else {
+                        card.hide();
+                    }
+                });
+
+                countLabel.text(visibleCount);
+                if (visibleCount === 0) {
+                    noResults.removeClass('d-none');
+                } else {
+                    noResults.addClass('d-none');
+                }
+            }
+
+            searchInput.on('input', filterApartments);
+            minRentInput.on('input', filterApartments);
+            maxRentInput.on('input', filterApartments);
+
+            resetBtn.on('click', function() {
+                searchInput.val('');
+                minRentInput.val('');
+                maxRentInput.val('');
+                filterApartments();
+            });
+        });
+    </script>
+}

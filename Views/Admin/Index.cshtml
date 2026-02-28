@@ -6,11 +6,17 @@
 
 <div class="container premium-container fade-in">
     <div class="row align-items-center mb-4">
-        <div class="col-lg-8">
+        <div class="col-lg-5">
             <h1 class="h2 fw-bold mb-1">User Command Center</h1>
             <p class="text-muted small">Administrative authority over property managers and residents.</p>
         </div>
-        <div class="col-lg-4 text-lg-end">
+        <div class="col-lg-4">
+            <div class="input-group shadow-sm">
+                <span class="input-group-text bg-white border-end-0 text-primary"><i class="bi bi-search"></i></span>
+                <input type="text" id="adminSearch" class="form-control border-start-0 ps-0 small" placeholder="Search by name, email or role..." />
+            </div>
+        </div>
+        <div class="col-lg-3 text-lg-end">
             <a asp-action="Create" class="btn btn-premium btn-primary-premium py-2 px-4 shadow-sm rounded-pill">
                 <i class="bi bi-person-plus-fill me-2"></i> Provision New Account
             </a>
@@ -44,7 +50,8 @@
                     </thead>
                     <tbody>
                         @foreach (var item in Model) {
-                            <tr class="transition-all hover-light">
+                            <tr class="transition-all hover-light user-row" 
+                                data-search="@(item.FullName.ToLower() + " " + item.Email.ToLower() + " " + item.Role.ToString().ToLower())">
                                 <td class="ps-4 py-3">
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="bg-primary bg-opacity-10 p-1 rounded text-primary">
@@ -105,3 +112,27 @@
         transition: all 0.2s ease;
     }
 </style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            const searchInput = $('#adminSearch');
+            const rows = $('.user-row');
+
+            searchInput.on('input', function() {
+                const query = $(this).val().toLowerCase();
+                
+                rows.each(function() {
+                    const row = $(this);
+                    const searchData = row.data('search');
+                    
+                    if (searchData.includes(query)) {
+                        row.show();
+                    } else {
+                        row.hide();
+                    }
+                });
+            });
+        });
+    </script>
+}

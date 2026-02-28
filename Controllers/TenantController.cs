@@ -21,29 +21,14 @@ namespace FinalProjectQuang.Controllers
             _context = context;
         }
 
-        // 1. Search and view a list of available apartments
-        public async Task<IActionResult> AvailableApartments(string searchString, decimal? minRent, decimal? maxRent)
+        public async Task<IActionResult> AvailableApartments()
         {
-            var apartments = _context.Apartments
+            var apartments = await _context.Apartments
                 .Include(a => a.Property)
-                .Where(a => a.Status == ApartmentStatus.Available);
+                .Where(a => a.Status == ApartmentStatus.Available)
+                .ToListAsync();
 
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                apartments = apartments.Where(s => s.Property.Name.Contains(searchString) || s.Property.City.Contains(searchString));
-            }
-
-            if (minRent.HasValue)
-            {
-                apartments = apartments.Where(a => a.Rent >= minRent.Value);
-            }
-
-            if (maxRent.HasValue)
-            {
-                apartments = apartments.Where(a => a.Rent <= maxRent.Value);
-            }
-
-            return View(await apartments.ToListAsync());
+            return View(apartments);
         }
 
         // 2. Submit a request to book an appointment
