@@ -2,15 +2,24 @@
     ViewData["Title"] = "Luxury Property Rentals";
 }
 
-<div class="hero-section text-center fade-in" style="background-image: url('https://antigravity-artifacts.s3.amazonaws.com/c7837b32-edc2-4fe5-8e7b-6c5640ce8a7d/modern_apartment_exterior_1772250447010.png');">
+<div class="hero-section text-center fade-in" style="background-image: url('/images/exterior1.png');">
     <div class="hero-overlay"></div>
     <div class="container hero-content">
         <h1 class="display-3 fw-bold mb-3">Elevate Your Living Experience</h1>
         <p class="lead mb-4 fs-5 text-white">Discover premium apartments, manage your portfolio, and find your next home with our state-of-the-art rental management platform.</p>
         <div class="d-flex justify-content-center gap-3">
-            <a asp-controller="Tenant" asp-action="AvailableApartments" class="btn btn-premium btn-primary-premium px-4 py-2 fw-bold">
-                <i class="bi bi-search"></i> Find Your Home
-            </a>
+            @if (!User.IsInRole("Owner") && !User.IsInRole("Manager"))
+            {
+                <a asp-controller="Tenant" asp-action="AvailableApartments" class="btn btn-premium btn-primary-premium px-4 py-2 fw-bold">
+                    <i class="bi bi-search"></i> Find Your Home
+                </a>
+            }
+            else
+            {
+                <a href="#portals" class="btn btn-premium btn-primary-premium px-4 py-2 fw-bold">
+                    <i class="bi bi-grid-fill"></i> Access Dashboard
+                </a>
+            }
             <a href="#portals" class="btn btn-premium btn-light-premium px-4 py-2 fw-bold bg-white text-dark border-0 hover-scale">
                 Explore Portals
             </a>

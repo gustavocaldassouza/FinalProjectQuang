@@ -36,9 +36,12 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Tenant" asp-action="AvailableApartments">Rent Home</a>
-                        </li>
+                        @if (!User.IsInRole("Owner") && !User.IsInRole("Manager"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Tenant" asp-action="AvailableApartments">Rent Home</a>
+                            </li>
+                        }
                         
                         @if (User.Identity?.IsAuthenticated == true)
                         {
