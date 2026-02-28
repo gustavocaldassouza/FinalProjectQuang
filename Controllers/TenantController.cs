@@ -85,9 +85,9 @@ namespace FinalProjectQuang.Controllers
                 appointment.IsConfirmed = false;
                 
                 // Clear navigation properties to avoid EF issues on insert
-                appointment.Apartment = null;
-                appointment.Tenant = null;
-                appointment.Manager = null;
+                appointment.Apartment = null!;
+                appointment.Tenant = null!;
+                appointment.Manager = null!;
 
                 _context.Appointments.Add(appointment);
                 await _context.SaveChangesAsync();

@@ -12,14 +12,14 @@ namespace FinalProjectQuang.Models
 
         [Required]
         [MaxLength(100)]
-        public string FullName { get; set; }
+        public string FullName { get; set; } = string.Empty;
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Required]
-        public string Password { get; set; } // Consider using ASP.NET Core Identity for production projects
+        public string Password { get; set; } = string.Empty; // Consider using ASP.NET Core Identity for production projects
 
         [Required]
         public UserRole Role { get; set; }

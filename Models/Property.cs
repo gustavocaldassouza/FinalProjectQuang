@@ -11,20 +11,20 @@ namespace FinalProjectQuang.Models
 
         [Required]
         [MaxLength(200)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(500)]
-        public string Address { get; set; }
+        public string Address { get; set; } = string.Empty;
 
         [Required]
-        public string City { get; set; }
+        public string City { get; set; } = string.Empty;
 
         // Foreign Key to User (Owner)
         public int OwnerId { get; set; }
         
         [ForeignKey("OwnerId")]
-        public User Owner { get; set; }
+        public User Owner { get; set; } = null!;
 
         // Navigation Property for Apartments
         public ICollection<Apartment> Apartments { get; set; }

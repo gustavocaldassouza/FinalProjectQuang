@@ -11,7 +11,7 @@ namespace FinalProjectQuang.Models
 
         [Required]
         [MaxLength(2000)]
-        public string Content { get; set; }
+        public string Content { get; set; } = string.Empty;
 
         [Required]
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
@@ -20,13 +20,13 @@ namespace FinalProjectQuang.Models
         public int SenderId { get; set; }
 
         [ForeignKey("SenderId")]
-        public User Sender { get; set; }
+        public User Sender { get; set; } = null!;
 
         // Foreign Key to Receiver (User)
         public int ReceiverId { get; set; }
 
         [ForeignKey("ReceiverId")]
-        public User Receiver { get; set; }
+        public User Receiver { get; set; } = null!;
 
         public bool IsRead { get; set; } = false;
     }

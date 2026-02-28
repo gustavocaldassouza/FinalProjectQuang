@@ -11,7 +11,7 @@ namespace FinalProjectQuang.Models
 
         [Required]
         [MaxLength(50)]
-        public string ApartmentNumber { get; set; }
+        public string ApartmentNumber { get; set; } = string.Empty;
 
         [Required]
         public decimal Rent { get; set; }
@@ -23,7 +23,7 @@ namespace FinalProjectQuang.Models
         public int PropertyId { get; set; }
 
         [ForeignKey("PropertyId")]
-        public Property Property { get; set; }
+        public Property Property { get; set; } = null!;
 
         // Navigation Property for Appointments
         public ICollection<Appointment> Appointments { get; set; }
