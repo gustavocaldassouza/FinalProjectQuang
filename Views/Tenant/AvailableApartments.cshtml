@@ -130,7 +130,7 @@
                                 <a asp-action="BookAppointment" asp-route-apartmentId="@item.ApartmentId" class="btn btn-premium btn-primary-premium py-3 rounded-4">
                                     Book Viewing Portfolio
                                 </a>
-                                <a asp-action="SendMessage" asp-route-managerId="@item.Property?.OwnerId" class="btn btn-outline-dark border-0 bg-light py-3 rounded-4 fw-semibold">
+                                <a asp-action="SendMessage" asp-route-managerId="@item.Property?.OwnerId" asp-route-propertyId="@item.PropertyId" class="btn btn-outline-dark border-0 bg-light py-3 rounded-4 fw-semibold">
                                     Consult Concierge
                                 </a>
                             </div>

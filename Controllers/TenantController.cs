@@ -84,15 +84,16 @@ namespace FinalProjectQuang.Controllers
         }
 
         // 3. Send a simple text message to a property manager
-        public IActionResult SendMessage(int? managerId)
+        public IActionResult SendMessage(int? managerId, int? propertyId)
         {
             ViewBag.Managers = new SelectList(_context.Users.Where(u => u.Role == UserRole.Manager), "UserId", "FullName", managerId);
+            ViewBag.PropertyId = propertyId;
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SendMessage(int receiverId, string content)
+        public async Task<IActionResult> SendMessage(int receiverId, int? propertyId, string content)
         {
             var senderEmail = User.Identity?.Name;
             var sender = await _context.Users.FirstOrDefaultAsync(u => u.Email == senderEmail);
@@ -103,6 +104,7 @@ namespace FinalProjectQuang.Controllers
                 {
                     SenderId = sender.UserId,
                     ReceiverId = receiverId,
+                    PropertyId = propertyId,
                     Content = content,
                     Timestamp = DateTime.UtcNow,
                     IsRead = false
@@ -115,6 +117,7 @@ namespace FinalProjectQuang.Controllers
             }
 
             ViewBag.Managers = new SelectList(_context.Users.Where(u => u.Role == UserRole.Manager), "UserId", "FullName", receiverId);
+            ViewBag.PropertyId = propertyId;
             return View();
         }
         // 4. View scheduled appointments for the tenant

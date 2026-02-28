@@ -288,15 +288,18 @@ namespace FinalProjectQuang.Controllers
 
             var messages = await _context.Messages
                 .Include(m => m.Sender)
-                .Where(m => manager == null || m.ReceiverId == manager.UserId)
+                .Include(m => m.Receiver)
+                .Include(m => m.Property)
+                .Where(m => manager == null || m.ReceiverId == manager.UserId || m.SenderId == manager.UserId)
                 .OrderByDescending(m => m.Timestamp)
                 .ToListAsync();
 
+            ViewBag.CurrentManagerId = manager?.UserId;
             return View(messages);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ReplyMessage(int originalMessageId, string replyContent)
+        public async Task<IActionResult> ReplyMessage(int originalMessageId, string replyContent, int? propertyId)
         {
             var originalMessage = await _context.Messages.FindAsync(originalMessageId);
             if (originalMessage == null) return NotFound();
@@ -310,6 +313,7 @@ namespace FinalProjectQuang.Controllers
             {
                 SenderId = manager.UserId,
                 ReceiverId = originalMessage.SenderId,
+                PropertyId = propertyId,
                 Content = $"RE: {originalMessage.Content}\n\n{replyContent}",
                 Timestamp = DateTime.UtcNow,
                 IsRead = false

@@ -29,5 +29,11 @@ namespace FinalProjectQuang.Models
         public User Receiver { get; set; } = null!;
 
         public bool IsRead { get; set; } = false;
+        
+        // Foreign Key to Property
+        public int? PropertyId { get; set; }
+        
+        [ForeignKey("PropertyId")]
+        public Property? Property { get; set; }
     }
 }

@@ -39,46 +39,115 @@
     {
         <div class="row justify-content-center">
             <div class="col-lg-10">
-                <div class="glass-card shadow-lg border-0 overflow-hidden">
-                    @foreach (var msg in Model)
-                    {
-                        <div class="p-4 border-bottom hover-light transition-all @(msg.IsRead ? "" : "bg-primary bg-opacity-5")">
-                            <div class="row align-items-center">
-                                <div class="col-md-3 mb-3 mb-md-0">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="bg-primary bg-opacity-10 p-1 rounded-circle text-primary d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
-                                            <i class="bi bi-person-fill fs-6"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="fw-bold mb-0 small">@msg.Sender?.FullName</h6>
-                                            <small class="text-muted x-small">Resident</small>
-                                        </div>
-                                    </div>
+                @{
+                    int managerId = ViewBag.CurrentManagerId ?? 0;
+                    var propertyGroups = Model.GroupBy(m => m.PropertyId ?? 0)
+                                            .Select(pg => new {
+                                                PropertyId = pg.Key,
+                                                PropertyName = pg.FirstOrDefault(m => m.Property != null)?.Property?.Name ?? "General Inquiries",
+                                                PropertyAddress = pg.FirstOrDefault(m => m.Property != null)?.Property?.Address ?? "Direct Communication",
+                                                LatestMessage = pg.OrderByDescending(m => m.Timestamp).First(),
+                                                Conversations = pg.GroupBy(m => m.SenderId == managerId ? m.ReceiverId : m.SenderId)
+                                                                .Select(g => new {
+                                                                    PartnerId = g.Key,
+                                                                    PartnerName = g.First(m => (m.SenderId == managerId ? m.Receiver?.FullName : m.Sender?.FullName) != null)
+                                                                                   .SenderId == managerId ? g.First().Receiver?.FullName : g.First().Sender?.FullName,
+                                                                    Messages = g.OrderByDescending(m => m.Timestamp).ToList()
+                                                                }).ToList()
+                                            })
+                                            .OrderByDescending(pg => pg.LatestMessage.Timestamp);
+                }
+
+                @foreach (var group in propertyGroups)
+                {
+                    var latest = group.LatestMessage;
+                    var isOutgoing = latest.SenderId == managerId;
+                    
+                    <div class="glass-card shadow-lg border-0 overflow-hidden mb-5 p-0 border-top border-4 border-primary">
+                        <!-- Property Header -->
+                        <div class="p-4 bg-light border-bottom">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h4 class="fw-bold mb-0 text-primary"><i class="bi bi-building me-2"></i>@group.PropertyName</h4>
+                                    <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>@group.PropertyAddress</small>
                                 </div>
-                                <div class="col-md-6 mb-3 mb-md-0">
-                                    <p class="mb-0 text-dark opacity-75">
-                                        @msg.Content
-                                    </p>
-                                </div>
-                                <div class="col-md-3 text-md-end">
-                                    <div class="mb-2">
-                                        <span class="text-muted small">
-                                            <i class="bi bi-clock me-1"></i> @msg.Timestamp.ToString("MMM dd, hh:mm tt")
-                                        </span>
-                                    </div>
-                                    <div class="d-flex gap-2 justify-content-md-end">
-                                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#replyModal@(msg.MessageId)">
-                                            <i class="bi bi-reply-fill me-1"></i> Reply
-                                        </button>
-                                    </div>
-                                </div>
+                                <span class="badge bg-primary rounded-pill px-3">@group.Conversations.Count Conversations</span>
                             </div>
                         </div>
-                    }
-                </div>
+
+                        @foreach (var conv in group.Conversations)
+                        {
+                            var topMsg = conv.Messages.First();
+                            var convIsOutgoing = topMsg.SenderId == managerId;
+                            var history = conv.Messages.Skip(1).ToList();
+
+                            <div class="p-4 border-bottom">
+                                <div class="row align-items-center">
+                                    <div class="col-md-3 mb-3 mb-md-0">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="bg-secondary bg-opacity-10 p-1 rounded-circle text-secondary d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                                <i class="bi bi-person-circle fs-6"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="fw-bold mb-0 small">@conv.PartnerName</h6>
+                                                <small class="text-muted x-small">Resident</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3 mb-md-0">
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <span class="badge @(convIsOutgoing ? "bg-success" : "bg-primary") bg-opacity-10 @(convIsOutgoing ? "text-success" : "text-primary") x-small rounded-pill">
+                                                @(convIsOutgoing ? "Your Reply" : "Recent Inquiry")
+                                            </span>
+                                            @if (!convIsOutgoing && !topMsg.IsRead)
+                                            {
+                                                <span class="badge bg-danger rounded-pill x-small pulse-red">New</span>
+                                            }
+                                        </div>
+                                        <p class="mb-0 text-dark opacity-75 small text-truncate-2">
+                                            @topMsg.Content
+                                        </p>
+                                    </div>
+                                    <div class="col-md-3 text-md-end">
+                                        <div class="d-flex gap-2 justify-content-md-end">
+                                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#replyModal@(topMsg.MessageId)">
+                                                <i class="bi bi-reply-fill me-1"></i> Reply
+                                            </button>
+                                            @if (history.Any())
+                                            {
+                                                <button class="btn btn-sm btn-light rounded-pill px-3" type="button" data-bs-toggle="collapse" data-bs-target="#history@(topMsg.MessageId)">
+                                                    <i class="bi bi-clock-history"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Nested History -->
+                                @if (history.Any())
+                                {
+                                    <div class="collapse mt-3" id="history@(topMsg.MessageId)">
+                                        <div class="vstack gap-3 border-start ms-4 ps-4 my-2">
+                                            @foreach (var h in history)
+                                            {
+                                                var hOutgoing = h.SenderId == managerId;
+                                                <div class="glass-card @(hOutgoing ? "bg-success bg-opacity-5" : "bg-white") p-2 border-light small shadow-none border">
+                                                    <div class="d-flex justify-content-between x-small mb-1">
+                                                        <span class="fw-bold @(hOutgoing ? "text-success" : "text-primary")">@(hOutgoing ? "ME" : "TENANT")</span>
+                                                        <span class="text-muted">@h.Timestamp.ToString("MMM dd, HH:mm")</span>
+                                                    </div>
+                                                    <p class="mb-0 opacity-75">@h.Content</p>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
             </div>
         </div>
-
     }
 </div>
 
@@ -97,6 +166,7 @@
                     <form asp-action="ReplyMessage" method="post">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="originalMessageId" value="@msg.MessageId" />
+                        <input type="hidden" name="propertyId" value="@msg.PropertyId" />
                         <div class="modal-body py-4">
                             <div class="bg-light p-3 rounded-4 mb-4 small border">
                                 <div class="fw-bold mb-1"><i class="bi bi-chat-left-text me-2"></i>Original Message:</div>
@@ -126,5 +196,30 @@
     }
     .transition-all {
         transition: all 0.2s ease;
+    }
+    .text-truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .pulse-red {
+        animation: pulse-red-animation 2s infinite;
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+    }
+    @@keyframes pulse-red-animation {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+    .vstack > .position-relative::before {
+        content: '';
+        position: absolute;
+        left: -25px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e5e7eb;
+        z-index: 0;
     }
 </style>

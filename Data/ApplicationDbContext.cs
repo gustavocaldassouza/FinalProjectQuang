@@ -66,6 +66,12 @@ namespace FinalProjectQuang.Data
                 .HasForeignKey(m => m.ReceiverId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Message>()
+                .HasOne(m => m.Property)
+                .WithMany()
+                .HasForeignKey(m => m.PropertyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Decimal Precision for Rent
             modelBuilder.Entity<Apartment>()
                 .Property(a => a.Rent)

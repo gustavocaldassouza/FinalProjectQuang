@@ -16,6 +16,7 @@
                 
                 <div class="p-4">
                     <form asp-action="SendMessage" id="messageForm" class="row g-4">
+                        <input type="hidden" name="propertyId" value="@ViewBag.PropertyId" />
                         <div class="col-12">
                             <label class="form-label fs-6 fw-bold">Select Estate Specialist</label>
                             <div class="input-group shadow-sm">
