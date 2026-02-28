@@ -22,9 +22,12 @@ namespace FinalProjectQuang.Data
                 if (!context.Properties.Any())
                 {
                     var owner = await context.Users.FirstOrDefaultAsync(u => u.Role == UserRole.Owner);
-                    var property = new Property { Name = "Executive Tower One", Address = "123 Luxury Blvd", City = "Montréal", OwnerId = owner.UserId };
-                    context.Properties.Add(property);
-                    await context.SaveChangesAsync();
+                    if (owner != null)
+                    {
+                        var property = new Property { Name = "Executive Tower One", Address = "123 Luxury Blvd", City = "Montréal", OwnerId = owner.UserId };
+                        context.Properties.Add(property);
+                        await context.SaveChangesAsync();
+                    }
                 }
 
                 if (!context.Apartments.Any())

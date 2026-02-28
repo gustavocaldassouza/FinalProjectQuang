@@ -286,6 +286,7 @@ namespace FinalProjectQuang.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmAppointment(int appointmentId)
         {
             var appointment = await _context.Appointments.FindAsync(appointmentId);
@@ -293,6 +294,42 @@ namespace FinalProjectQuang.Controllers
             {
                 appointment.IsConfirmed = true;
                 await _context.SaveChangesAsync();
+                TempData["StatusMessage"] = "Appointment confirmed successfully.";
+            }
+            return RedirectToAction(nameof(Appointments));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RescheduleAppointment(int appointmentId, DateTime newDate)
+        {
+            var appointment = await _context.Appointments.FindAsync(appointmentId);
+            if (appointment == null) return NotFound();
+
+            if (newDate < DateTime.UtcNow)
+            {
+                TempData["ErrorMessage"] = "New appointment date must be in the future.";
+                return RedirectToAction(nameof(Appointments));
+            }
+
+            appointment.AppointmentDate = newDate;
+            appointment.IsConfirmed = false; // Reset confirmation since date changed
+            await _context.SaveChangesAsync();
+
+            TempData["StatusMessage"] = "Appointment rescheduled successfully.";
+            return RedirectToAction(nameof(Appointments));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAppointment(int appointmentId)
+        {
+            var appointment = await _context.Appointments.FindAsync(appointmentId);
+            if (appointment != null)
+            {
+                _context.Appointments.Remove(appointment);
+                await _context.SaveChangesAsync();
+                TempData["StatusMessage"] = "Appointment has been cancelled and removed.";
             }
             return RedirectToAction(nameof(Appointments));
         }

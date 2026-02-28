@@ -94,15 +94,25 @@
                                 @if (!item.IsConfirmed)
                                 {
                                     <form asp-action="ConfirmAppointment" method="post" class="d-grid shadow-sm rounded-3">
+                                        @Html.AntiForgeryToken()
                                         <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
-                                        <button type="submit" class="btn btn-premium btn-primary-premium py-1 rounded-3 fw-bold small">
-                                            Confirm
+                                        <button type="submit" class="btn btn-premium btn-primary-premium py-2 rounded-pill fw-bold small">
+                                            <i class="bi bi-check2-circle me-1"></i> Confirm Viewing
                                         </button>
                                     </form>
                                 }
                                 <div class="d-flex gap-2">
-                                    <a href="#" class="btn btn-light bg-opacity-25 flex-grow-1 py-2 rounded-4 fw-semibold text-muted">Reschedule</a>
-                                    <button class="btn btn-outline-danger border-0 bg-danger bg-opacity-5 py-2 px-3 rounded-4"><i class="bi bi-x-lg"></i></button>
+                                    <button class="btn btn-light bg-opacity-25 flex-grow-1 py-2 rounded-pill fw-semibold text-muted shadow-sm" 
+                                            data-bs-toggle="modal" data-bs-target="#rescheduleModal-@item.AppointmentId">
+                                        <i class="bi bi-calendar-event me-1"></i> Reschedule
+                                    </button>
+                                    <form asp-action="DeleteAppointment" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this viewing appointment?')">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
+                                        <button type="submit" class="btn btn-outline-danger border-0 bg-danger bg-opacity-10 py-2 px-3 rounded-circle shadow-sm" title="Cancel Appointment">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -112,3 +122,42 @@
         </div>
     }
 </div>
+
+@if (Model.Any())
+{
+    @foreach (var item in Model)
+    {
+        <!-- Reschedule Modal -->
+        <div class="modal fade" id="rescheduleModal-@item.AppointmentId" tabindex="-1" aria-hidden="true" style="z-index: 9999;">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="modal-header border-0 pb-0 pt-4 px-4">
+                        <h5 class="modal-title fw-bold text-dark">Reschedule Viewing</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form asp-action="RescheduleAppointment" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
+                        <div class="modal-body py-4 px-4">
+                            <div class="mb-4 text-center bg-light p-3 rounded-4">
+                                <span class="d-block text-muted x-small text-uppercase fw-bold mb-1">Current Appointment</span>
+                                <span class="fw-bold text-dark">@item.AppointmentDate.ToString("MMMM dd, hh:mm tt")</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label fw-bold small mb-2 text-primary"><i class="bi bi-calendar-plus me-1"></i> New Target Date & Time</label>
+                                <input type="datetime-local" name="newDate" class="form-control form-control-lg rounded-4 border-2 border-primary border-opacity-10 shadow-sm" 
+                                       value="@item.AppointmentDate.ToString("yyyy-MM-ddTHH:mm")" required />
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 pt-0 pb-4 px-4 justify-content-center flex-column gap-2">
+                            <button type="submit" class="btn btn-premium btn-primary-premium rounded-pill w-100 py-3 shadow">
+                                <i class="bi bi-check-circle-fill me-2"></i> Update viewing Schedule
+                            </button>
+                            <button type="button" class="btn btn-link link-muted small text-decoration-none" data-bs-dismiss="modal">Keep existing time</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+}
