@@ -1,17 +1,17 @@
 @{
-    ViewData["Title"] = "Concierge Authentication";
+    ViewData["Title"] = "Tenant Registration";
 }
 
 <div class="container premium-container fade-in">
     <div class="row min-vh-75 justify-content-center align-items-center">
-        <div class="col-lg-4">
+        <div class="col-lg-5">
             <div class="glass-card shadow-lg p-0 overflow-hidden border-0" style="border-radius: 1rem;">
                 <div class="p-4 bg-primary text-white text-center position-relative">
                     <div class="mb-2">
-                        <i class="bi bi-building-fill-check fs-1"></i>
+                        <i class="bi bi-person-plus-fill fs-1"></i>
                     </div>
-                    <h4 class="fw-bold mb-1">Estate Login</h4>
-                    <p class="opacity-75 small mb-0">Secure access to the luxury property network.</p>
+                    <h4 class="fw-bold mb-1">Create Resident Account</h4>
+                    <p class="opacity-75 small mb-0">Join our exclusive property network today.</p>
                 </div>
                 
                 <div class="p-4">
@@ -22,7 +22,17 @@
                         </div>
                     }
 
-                    <form asp-action="Login" method="post" class="row g-4">
+                    <form asp-action="Register" method="post" class="row g-4">
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Full Name</label>
+                            <div class="input-group shadow-sm">
+                                <span class="input-group-text bg-white border-end-0 text-primary"><i class="bi bi-person"></i></span>
+                                <input name="fullName" type="text" class="form-control border-start-0 ps-0 fs-6" placeholder="John Doe" required />
+                            </div>
+                        </div>
+
                         <div class="col-12">
                             <label class="form-label fw-bold">Email Address</label>
                             <div class="input-group shadow-sm">
@@ -32,7 +42,7 @@
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label fw-bold">Access Password</label>
+                            <label class="form-label fw-bold">Create Password</label>
                             <div class="input-group shadow-sm">
                                 <span class="input-group-text bg-white border-end-0 text-primary"><i class="bi bi-shield-lock"></i></span>
                                 <input name="password" type="password" class="form-control border-start-0 ps-0 fs-6" placeholder="••••••••" required />
@@ -41,21 +51,15 @@
 
                         <div class="col-12 pt-2">
                             <button type="submit" class="btn btn-premium btn-primary-premium w-100 py-2 shadow-sm rounded-pill">
-                                Authenticate Profile <i class="bi bi-box-arrow-in-right ms-2"></i>
+                                Register Account <i class="bi bi-check2-circle ms-2"></i>
                             </button>
                         </div>
                     </form>
 
-                    <div class="mt-4 text-center border-top pt-3">
-                        <p class="text-muted small mb-3">New to our network? 
-                            <a asp-action="Register" class="text-primary fw-bold text-decoration-none">Create Resident Account</a>
+                    <div class="mt-4 text-center">
+                        <p class="text-muted small">Already have an account? 
+                            <a asp-action="Login" class="text-primary fw-bold text-decoration-none">Sign In Here</a>
                         </p>
-                        <p class="text-muted x-small mb-2">DEMO CREDENTIALS (Email / Password):</p>
-                        <div class="d-flex flex-wrap gap-2 justify-content-center">
-                            <span class="badge bg-light text-dark border p-2">owner@rent.com / 123</span>
-                            <span class="badge bg-light text-dark border p-2">manager@rent.com / 123</span>
-                            <span class="badge bg-light text-dark border p-2">tenant@rent.com / 123</span>
-                        </div>
                     </div>
                 </div>
             </div>
