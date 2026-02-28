@@ -1,0 +1,64 @@
+@model IEnumerable<FinalProjectQuang.Models.Apartment>
+
+@{
+    ViewData["Title"] = "Available Apartments";
+}
+
+<link rel="stylesheet" href="~/css/admin.css" />
+
+<div class="admin-container fade-in">
+    <div class="admin-header">
+        <h1>Find Your New Home</h1>
+        <p class="text-muted">Browse through our premium available listings.</p>
+    </div>
+
+    <!-- Search Sidebar / Top Bar -->
+    <div class="admin-card mb-4">
+        <form asp-action="AvailableApartments" method="get" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" name="searchString" class="form-control" placeholder="Search by Building or City..." value="@Context.Request.Query["searchString"]" />
+            </div>
+            <div class="col-md-3">
+                <input type="number" name="minRent" class="form-control" placeholder="Min Rent ($)" value="@Context.Request.Query["minRent"]" />
+            </div>
+            <div class="col-md-3">
+                <input type="number" name="maxRent" class="form-control" placeholder="Max Rent ($)" value="@Context.Request.Query["maxRent"]" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn-premium btn-primary-premium w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="row">
+        @if (!Model.Any())
+        {
+            <div class="col-12 text-center py-5">
+                <h3 class="text-muted">No apartments found matching your criteria.</h3>
+            </div>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="admin-card h-100 d-flex flex-column">
+                        <div class="mb-3">
+                            <h3 class="mb-1">Unit @item.ApartmentNumber</h3>
+                            <p class="text-muted"><i class="bi bi-building"></i> @item.Property?.Name</p>
+                            <p class="small"><i class="bi bi-geo-alt"></i> @item.Property?.Address, @item.Property?.City</p>
+                        </div>
+                        
+                        <div class="mt-auto">
+                            <h2 class="text-success mb-3">@item.Rent.ToString("C")<small class="text-muted" style="font-size: 0.5em">/mo</small></h2>
+                            <div class="d-grid gap-2">
+                                <a asp-action="BookAppointment" asp-route-apartmentId="@item.ApartmentId" class="btn-premium btn-primary-premium text-center">Schedule Viewing</a>
+                                <a asp-action="SendMessage" class="btn-premium btn-secondary-premium text-center">Ask a Question</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

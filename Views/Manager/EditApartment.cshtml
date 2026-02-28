@@ -1,0 +1,53 @@
+@model FinalProjectQuang.Models.Apartment
+
+@{
+    ViewData["Title"] = "Edit Apartment";
+}
+
+<link rel="stylesheet" href="~/css/admin.css" />
+
+<div class="admin-container fade-in">
+    <div class="admin-header">
+        <h1>Edit Apartment: @Model.ApartmentNumber</h1>
+        <a asp-action="Apartments" class="btn-premium btn-secondary-premium">Back</a>
+    </div>
+
+    <div class="admin-card">
+        <form asp-action="EditApartment">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ApartmentId" />
+            
+            <div class="form-group">
+                <label asp-for="ApartmentNumber" class="form-label">Apartment Number</label>
+                <input asp-for="ApartmentNumber" class="form-control" />
+                <span asp-validation-for="ApartmentNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Rent" class="form-label">Monthly Rent ($)</label>
+                <input asp-for="Rent" class="form-control" type="number" step="0.01" />
+                <span asp-validation-for="Rent" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Status" class="form-label">Status</label>
+                <select asp-for="Status" class="form-control" asp-items="Html.GetEnumSelectList<FinalProjectQuang.Models.ApartmentStatus>()"></select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PropertyId" class="form-label">Property</label>
+                <select asp-for="PropertyId" class="form-control" asp-items="ViewBag.PropertyId"></select>
+                <span asp-validation-for="PropertyId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-4">
+                <button type="submit" class="btn-premium btn-primary-premium w-100">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

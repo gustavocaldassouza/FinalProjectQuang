@@ -1,0 +1,37 @@
+@model FinalProjectQuang.Models.User
+
+@{
+    ViewData["Title"] = "User Details";
+}
+
+<link rel="stylesheet" href="~/css/admin.css" />
+
+<div class="admin-container fade-in">
+    <div class="admin-header">
+        <h1>User Details: @Model.FullName</h1>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model.UserId" class="btn-premium btn-primary-premium">Edit User</a>
+            <a asp-action="Index" class="btn-premium btn-secondary-premium">Back to List</a>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <dl class="row">
+            <dt class = "col-sm-3 form-label">Full Name</dt>
+            <dd class = "col-sm-9">@Model.FullName</dd>
+            
+            <dt class = "col-sm-3 form-label">Email Address</dt>
+            <dd class = "col-sm-9">@Model.Email</dd>
+            
+            <dt class = "col-sm-3 form-label">Role</dt>
+            <dd class = "col-sm-9">
+                <span class="badge @(Model.Role == FinalProjectQuang.Models.UserRole.Manager ? "badge-manager" : "badge-tenant")">
+                    @Model.Role
+                </span>
+            </dd>
+            
+            <dt class = "col-sm-3 form-label">User ID</dt>
+            <dd class = "col-sm-9">@Model.UserId</dd>
+        </dl>
+    </div>
+</div>

@@ -1,0 +1,88 @@
+@model FinalProjectQuang.Models.Appointment
+
+@{
+    ViewData["Title"] = "Book Viewing";
+}
+
+<link rel="stylesheet" href="~/css/admin.css" />
+
+<div class="admin-container fade-in">
+    <div class="admin-header">
+        <h1>Schedule a Viewing</h1>
+        <a asp-action="AvailableApartments" class="btn-premium btn-secondary-premium">Cancel</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="admin-card">
+                <h4>Booking Details</h4>
+                <hr />
+                <p><strong>Building:</strong> @Model.Apartment?.Property?.Name</p>
+                <p><strong>Apartment:</strong> Unit @Model.Apartment?.ApartmentNumber</p>
+                <p><strong>Location:</strong> @Model.Apartment?.Property?.Address, @Model.Apartment?.Property?.City</p>
+                <p><strong>Monthly Rent:</strong> @Model.Apartment?.Rent.ToString("C")</p>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="admin-card">
+                <form asp-action="BookAppointment" id="bookingForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="ApartmentId" />
+
+                    <div class="form-group">
+                        <label class="form-label">Select Date & Time</label>
+                        <input asp-for="AppointmentDate" id="appointmentDate" class="form-control" type="datetime-local" />
+                        <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                        <div id="dateError" class="text-danger" style="display:none;">Viewing must be at least 1 hour in the future.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Choose a Manager</label>
+                        <select asp-for="ManagerId" class="form-control" asp-items="ViewBag.Managers">
+                            <option value="">-- Select Manager --</option>
+                        </select>
+                        <span asp-validation-for="ManagerId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Special Notes</label>
+                        <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Tell us if you have any questions..."></textarea>
+                    </div>
+
+                    <div class="form-group mt-4">
+                        <button type="submit" class="btn-premium btn-primary-premium w-100">Request Appointment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            const dateInput = document.getElementById('appointmentDate');
+            const selectedDate = new Date(dateInput.value);
+            const now = new Date();
+            const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+
+            if (selectedDate < oneHourLater) {
+                e.preventDefault();
+                document.getElementById('dateError').style.display = 'block';
+                dateInput.classList.add('is-invalid');
+            } else {
+                document.getElementById('dateError').style.display = 'none';
+                dateInput.classList.remove('is-invalid');
+            }
+
+            const managerSelect = document.querySelector('select[name="ManagerId"]');
+            if (!managerSelect.value) {
+                e.preventDefault();
+                managerSelect.classList.add('is-invalid');
+                alert('Please select a manager to meet with.');
+            }
+        });
+    </script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

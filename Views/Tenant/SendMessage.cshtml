@@ -1,0 +1,73 @@
+@{
+    ViewData["Title"] = "Contact Manager";
+}
+
+<link rel="stylesheet" href="~/css/admin.css" />
+
+<div class="admin-container fade-in">
+    <div class="admin-header">
+        <h1>Send Message</h1>
+        <a asp-action="AvailableApartments" class="btn-premium btn-secondary-premium">Cancel</a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="admin-card">
+                <form asp-action="SendMessage" id="messageForm">
+                    <div class="form-group">
+                        <label class="form-label">To: Manager</label>
+                        <select name="receiverId" id="managerSelect" class="form-control" asp-items="ViewBag.Managers">
+                            <option value="">-- Choose a Manager --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Message Content</label>
+                        <textarea name="content" id="messageContent" class="form-control" rows="6" placeholder="Type your message here..."></textarea>
+                        <div id="contentError" class="text-danger" style="display:none;">Please enter some text before sending.</div>
+                    </div>
+
+                    <div class="form-group mt-4">
+                        <button type="submit" class="btn-premium btn-primary-premium w-100">Send Message</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="text-center mt-3">
+                <p class="text-muted"><i class="bi bi-info-circle"></i> Messages sent are delivered instantly to the manager's dashboard.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('messageForm').addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            const managerSelect = document.getElementById('managerSelect');
+            const messageContent = document.getElementById('messageContent');
+            const contentError = document.getElementById('contentError');
+
+            if (!managerSelect.value) {
+                isValid = false;
+                managerSelect.classList.add('is-invalid');
+            } else {
+                managerSelect.classList.remove('is-invalid');
+            }
+
+            if (messageContent.value.trim().length === 0) {
+                isValid = false;
+                messageContent.classList.add('is-invalid');
+                contentError.style.display = 'block';
+            } else {
+                messageContent.classList.remove('is-invalid');
+                contentError.style.display = 'none';
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+    </script>
+}

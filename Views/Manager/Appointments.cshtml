@@ -1,0 +1,54 @@
+@model IEnumerable<FinalProjectQuang.Models.Appointment>
+
+@{
+    ViewData["Title"] = "My Appointments";
+}
+
+<link rel="stylesheet" href="~/css/admin.css" />
+
+<div class="admin-container fade-in">
+    <div class="admin-header">
+        <h1>Scheduled Appointments</h1>
+        <p class="text-muted">Stay on top of your viewing schedule.</p>
+    </div>
+
+    <div class="row">
+        @if (!Model.Any())
+        {
+            <div class="col-12 text-center py-5">
+                <h4 class="text-muted">No appointments scheduled.</h4>
+            </div>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="admin-card" style="border-left: 5px solid @(item.IsConfirmed ? "#27ae60" : "#f39c12")">
+                        <div class="d-flex justify-content-between">
+                            <span class="badge @(item.IsConfirmed ? "badge-tenant" : "badge-manager")">
+                                @(item.IsConfirmed ? "Confirmed" : "Pending")
+                            </span>
+                            <small class="text-muted">ID: #@item.AppointmentId</small>
+                        </div>
+                        <h4 class="mt-2 mb-1">@item.AppointmentDate.ToString("MMM dd, yyyy")</h4>
+                        <p class="mb-3"><strong>Time:</strong> @item.AppointmentDate.ToString("hh:mm tt")</p>
+                        
+                        <hr />
+                        
+                        <p class="mb-1"><strong>Tenant:</strong> @item.Tenant?.FullName</p>
+                        <p class="mb-1"><strong>Apartment:</strong> Unit @item.Apartment?.ApartmentNumber</p>
+                        <p class="mb-3"><strong>Property:</strong> @item.Apartment?.Property?.Name</p>
+                        
+                        @if (!string.IsNullOrEmpty(item.Notes))
+                        {
+                            <div class="bg-light p-2 rounded small text-muted">
+                                <strong>Notes:</strong> @item.Notes
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

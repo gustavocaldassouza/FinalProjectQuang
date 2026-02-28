@@ -1,0 +1,61 @@
+@model IEnumerable<FinalProjectQuang.Models.Apartment>
+
+@{
+    ViewData["Title"] = "Manage Apartments";
+}
+
+<link rel="stylesheet" href="~/css/admin.css" />
+
+<div class="admin-container fade-in">
+    <div class="admin-header">
+        <h1>Apartment Inventory</h1>
+        <a asp-action="CreateApartment" class="btn-premium btn-primary-premium">+ Add Apartment</a>
+    </div>
+
+    <div class="admin-card">
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Number</th>
+                    <th>Property</th>
+                    <th>Rent</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model) {
+                    <tr>
+                        <td>@item.ApartmentId</td>
+                        <td><strong>Unit @item.ApartmentNumber</strong></td>
+                        <td>@item.Property?.Name</td>
+                        <td>@item.Rent.ToString("C")</td>
+                        <td>
+                            <form asp-action="UpdateApartmentStatus" method="post" class="d-inline">
+                                <input type="hidden" name="apartmentId" value="@item.ApartmentId" />
+                                <select name="status" onchange="this.form.submit()" class="form-control form-control-sm d-inline-block w-auto" 
+                                        style="border: none; background: #f1f4f6; font-weight: 600;">
+                                    @foreach (var status in Enum.GetValues(typeof(FinalProjectQuang.Models.ApartmentStatus)))
+                                    {
+                                        if (item.Status.ToString() == status.ToString())
+                                        {
+                                            <option value="@status" selected>@status</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@status">@status</option>
+                                        }
+                                    }
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            <a asp-action="EditApartment" asp-route-id="@item.ApartmentId" class="btn-premium btn-secondary-premium btn-sm">Edit</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

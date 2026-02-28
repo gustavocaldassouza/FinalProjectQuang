@@ -1,0 +1,51 @@
+@model FinalProjectQuang.Models.Property
+
+@{
+    ViewData["Title"] = "Create Property";
+}
+
+<link rel="stylesheet" href="~/css/admin.css" />
+
+<div class="admin-container fade-in">
+    <div class="admin-header">
+        <h1>Create New Property</h1>
+        <a asp-action="Properties" class="btn-premium btn-secondary-premium">Back</a>
+    </div>
+
+    <div class="admin-card">
+        <form asp-action="CreateProperty">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <div class="form-group">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" placeholder="Property Name" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Address" class="form-label"></label>
+                <input asp-for="Address" class="form-control" placeholder="Street Address" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="City" class="form-label"></label>
+                <input asp-for="City" class="form-control" placeholder="City" />
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="OwnerId" class="form-label">Owner</label>
+                <select asp-for="OwnerId" class="form-control" asp-items="ViewBag.OwnerId"></select>
+            </div>
+
+            <div class="form-group mt-4">
+                <button type="submit" class="btn-premium btn-primary-premium w-100">Save Property</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

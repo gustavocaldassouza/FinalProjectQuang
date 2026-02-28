@@ -1,0 +1,45 @@
+@model IEnumerable<FinalProjectQuang.Models.User>
+
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<link rel="stylesheet" href="~/css/admin.css" />
+
+<div class="admin-container fade-in">
+    <div class="admin-header">
+        <h1>User Management</h1>
+        <a asp-action="Create" class="btn-premium btn-primary-premium shadow-sm">+ Add New User</a>
+    </div>
+
+    <div class="admin-card">
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th>FullName</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model) {
+                    <tr>
+                        <td>@item.FullName</td>
+                        <td>@item.Email</td>
+                        <td>
+                            <span class="badge @(item.Role == FinalProjectQuang.Models.UserRole.Manager ? "badge-manager" : "badge-tenant")">
+                                @item.Role
+                            </span>
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.UserId" class="btn-premium btn-secondary-premium btn-sm">Edit</a>
+                            <a asp-action="Details" asp-route-id="@item.UserId" class="btn-premium btn-primary-premium btn-sm" style="background: #7f8c8d;">Details</a>
+                            <a asp-action="Delete" asp-route-id="@item.UserId" class="btn-premium btn-danger-premium btn-sm">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
