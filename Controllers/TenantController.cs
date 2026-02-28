@@ -76,6 +76,7 @@ namespace FinalProjectQuang.Controllers
 
                 _context.Appointments.Add(appointment);
                 await _context.SaveChangesAsync();
+                TempData["StatusMessage"] = "Your viewing appointment request has been registered successfully.";
                 return RedirectToAction("AvailableApartments");
             }
             
@@ -109,9 +110,11 @@ namespace FinalProjectQuang.Controllers
 
                 _context.Messages.Add(message);
                 await _context.SaveChangesAsync();
+                TempData["StatusMessage"] = "Your message has been transmitted to our concierge team.";
                 return RedirectToAction("AvailableApartments");
             }
 
+            ViewBag.Managers = new SelectList(_context.Users.Where(u => u.Role == UserRole.Manager), "UserId", "FullName", receiverId);
             return View();
         }
         // 4. View scheduled appointments for the tenant
@@ -130,6 +133,28 @@ namespace FinalProjectQuang.Controllers
                 .ToListAsync();
 
             return View(appointments);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelAppointment(int id)
+        {
+            var tenantEmail = User.Identity?.Name;
+            var tenant = await _context.Users.FirstOrDefaultAsync(u => u.Email == tenantEmail);
+
+            if (tenant == null) return RedirectToAction("Login", "Account");
+
+            var appointment = await _context.Appointments
+                .FirstOrDefaultAsync(a => a.AppointmentId == id && a.TenantId == tenant.UserId);
+
+            if (appointment != null)
+            {
+                _context.Appointments.Remove(appointment);
+                await _context.SaveChangesAsync();
+                TempData["StatusMessage"] = "Your viewing appointment has been successfully cancelled.";
+            }
+
+            return RedirectToAction("MyAppointments");
         }
 
         // 5. View sent messages (Inbox) for the tenant
