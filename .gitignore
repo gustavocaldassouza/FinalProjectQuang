@@ -42,7 +42,7 @@ Thumbs.db
 *.ndf
 
 # EF Core
-Migrations/
+# Migrations/ (now tracked)
 
 # Built-in app settings
 appsettings.Development.json
