@@ -166,8 +166,9 @@ namespace FinalProjectQuang.Controllers
             if (tenant == null) return RedirectToAction("Login", "Account");
 
             var messages = await _context.Messages
+                .Include(m => m.Sender)
                 .Include(m => m.Receiver)
-                .Where(m => m.SenderId == tenant.UserId)
+                .Where(m => m.SenderId == tenant.UserId || m.ReceiverId == tenant.UserId)
                 .OrderByDescending(m => m.Timestamp)
                 .ToListAsync();
 

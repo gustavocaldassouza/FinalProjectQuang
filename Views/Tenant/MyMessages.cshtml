@@ -34,26 +34,34 @@
                 <div class="glass-card shadow-lg p-0 overflow-hidden border-0 rounded-4">
                     @foreach (var msg in Model)
                     {
+                        var isOutgoing = User.Identity?.Name == msg.Sender?.Email;
                         <div class="p-4 border-bottom transition-all @(msg.IsRead ? "bg-white" : "bg-primary bg-opacity-5")">
                             <div class="row align-items-start">
                                 <div class="col-md-9">
                                     <div class="d-flex align-items-center gap-2 mb-2">
-                                        <span class="badge @(msg.IsRead ? "bg-light text-muted" : "bg-primary text-white") rounded-pill">
-                                            @(msg.IsRead ? "Acknowledged" : "Delivered")
+                                        <span class="badge @(isOutgoing ? "bg-primary text-white" : "bg-success text-white") rounded-pill">
+                                            @(isOutgoing ? "SENT" : "RECEIVED")
                                         </span>
                                         <span class="text-muted small">
                                             <i class="bi bi-clock me-1"></i> @msg.Timestamp.ToString("MMM dd, yyyy - hh:mm tt")
                                         </span>
                                     </div>
                                     <div class="vstack gap-1">
-                                        <small class="text-muted fw-bold text-uppercase x-small">To Manager: @msg.Receiver?.FullName</small>
+                                        @if (isOutgoing)
+                                        {
+                                            <small class="text-muted fw-bold text-uppercase x-small">To: @msg.Receiver?.FullName</small>
+                                        }
+                                        else
+                                        {
+                                            <small class="text-primary fw-bold text-uppercase x-small">From: @msg.Sender?.FullName</small>
+                                        }
                                         <p class="mb-0 text-dark small">
                                             @msg.Content
                                         </p>
                                     </div>
                                 </div>
                                 <div class="col-md-3 text-md-end pt-2">
-                                    <button class="btn btn-sm btn-light border rounded-pill px-3">View Thread</button>
+                                    <i class="bi @(isOutgoing ? "bi-arrow-right-short" : "bi-arrow-left-short") fs-3 text-muted"></i>
                                 </div>
                             </div>
                         </div>

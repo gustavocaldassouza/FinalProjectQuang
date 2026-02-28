@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace FinalProjectQuang.Controllers
 {
-    [Authorize(Roles = "Manager")]
+    [Authorize(Roles = "Manager,Owner")]
     public class ManagerController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -47,6 +47,10 @@ namespace FinalProjectQuang.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateProperty([Bind("PropertyId,Name,Address,City,OwnerId")] Property property)
         {
+            // Remove navigation properties from validation
+            ModelState.Remove("Owner");
+            ModelState.Remove("Apartments");
+
             if (ModelState.IsValid)
             {
                 _context.Add(property);
@@ -71,14 +75,62 @@ namespace FinalProjectQuang.Controllers
         public async Task<IActionResult> EditProperty(int id, [Bind("PropertyId,Name,Address,City,OwnerId")] Property property)
         {
             if (id != property.PropertyId) return NotFound();
+
+            // Remove navigation properties from validation
+            ModelState.Remove("Owner");
+            ModelState.Remove("Apartments");
+
             if (ModelState.IsValid)
             {
-                _context.Update(property);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    _context.Update(property);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!PropertyExists(property.PropertyId)) return NotFound();
+                    else throw;
+                }
+                TempData["StatusMessage"] = "Property details updated successfully.";
                 return RedirectToAction(nameof(Properties));
             }
             ViewData["OwnerId"] = new SelectList(_context.Users.Where(u => u.Role == UserRole.Owner), "UserId", "FullName", property.OwnerId);
             return View(property);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteProperty(int id)
+        {
+            var property = await _context.Properties
+                .Include(p => p.Apartments)
+                .ThenInclude(a => a.Appointments)
+                .FirstOrDefaultAsync(p => p.PropertyId == id);
+
+            if (property == null) return NotFound();
+
+            // 1. Manually remove and save appointments first
+            foreach (var apartment in property.Apartments)
+            {
+                if (apartment.Appointments.Any())
+                {
+                    _context.Appointments.RemoveRange(apartment.Appointments);
+                }
+            }
+            await _context.SaveChangesAsync();
+
+            // 2. Now delete the property (which will cascade to apartments)
+            _context.Properties.Remove(property);
+            await _context.SaveChangesAsync();
+
+            TempData["StatusMessage"] = "Property has been successfully decommissioned.";
+            return RedirectToAction(nameof(Properties));
+        }
+
+        private bool PropertyExists(int id)
+        {
+            return _context.Properties.Any(e => e.PropertyId == id);
         }
 
         // --- Apartment CRUD & Status ---
@@ -103,6 +155,9 @@ namespace FinalProjectQuang.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateApartment([Bind("ApartmentId,ApartmentNumber,Rent,Status,PropertyId")] Apartment apartment)
         {
+            ModelState.Remove("Property");
+            ModelState.Remove("Appointments");
+
             if (ModelState.IsValid)
             {
                 _context.Add(apartment);
@@ -127,14 +182,59 @@ namespace FinalProjectQuang.Controllers
         public async Task<IActionResult> EditApartment(int id, [Bind("ApartmentId,ApartmentNumber,Rent,Status,PropertyId")] Apartment apartment)
         {
             if (id != apartment.ApartmentId) return NotFound();
+
+            ModelState.Remove("Property");
+            ModelState.Remove("Appointments");
+
             if (ModelState.IsValid)
             {
-                _context.Update(apartment);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    _context.Update(apartment);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ApartmentExists(apartment.ApartmentId)) return NotFound();
+                    else throw;
+                }
+                TempData["StatusMessage"] = "Apartment inventory updated.";
                 return RedirectToAction(nameof(Apartments));
             }
             ViewData["PropertyId"] = new SelectList(_context.Properties, "PropertyId", "Name", apartment.PropertyId);
             return View(apartment);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteApartment(int id)
+        {
+            var apartment = await _context.Apartments
+                .Include(a => a.Appointments)
+                .FirstOrDefaultAsync(a => a.ApartmentId == id);
+
+            if (apartment == null) return NotFound();
+
+            int? propertyId = apartment.PropertyId;
+
+            // 1. Remove appointments first to satisfy RESTRICT constraint
+            if (apartment.Appointments != null && apartment.Appointments.Any())
+            {
+                _context.Appointments.RemoveRange(apartment.Appointments);
+                await _context.SaveChangesAsync();
+            }
+
+            // 2. Remove the apartment unit
+            _context.Apartments.Remove(apartment);
+            await _context.SaveChangesAsync();
+
+            TempData["StatusMessage"] = "Apartment unit removed from inventory.";
+            return RedirectToAction(nameof(Apartments), new { propertyId });
+        }
+
+        private bool ApartmentExists(int id)
+        {
+            return _context.Apartments.Any(e => e.ApartmentId == id);
         }
 
         [HttpPost]
@@ -192,16 +292,35 @@ namespace FinalProjectQuang.Controllers
                 .OrderByDescending(m => m.Timestamp)
                 .ToListAsync();
 
-            if (messages.Any(m => !m.IsRead))
-            {
-                foreach(var m in messages.Where(m => !m.IsRead))
-                {
-                    m.IsRead = true;
-                }
-                await _context.SaveChangesAsync();
-            }
-
             return View(messages);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReplyMessage(int originalMessageId, string replyContent)
+        {
+            var originalMessage = await _context.Messages.FindAsync(originalMessageId);
+            if (originalMessage == null) return NotFound();
+
+            var managerEmail = User.Identity?.Name;
+            var manager = await _context.Users.FirstOrDefaultAsync(u => u.Email == managerEmail);
+
+            if (manager == null) return Unauthorized();
+
+            var reply = new Message
+            {
+                SenderId = manager.UserId,
+                ReceiverId = originalMessage.SenderId,
+                Content = $"RE: {originalMessage.Content}\n\n{replyContent}",
+                Timestamp = DateTime.UtcNow,
+                IsRead = false
+            };
+
+            originalMessage.IsRead = true;
+            _context.Messages.Add(reply);
+            await _context.SaveChangesAsync();
+
+            TempData["StatusMessage"] = "Reply sent successfully.";
+            return RedirectToAction(nameof(Messages));
         }
     }
 }
