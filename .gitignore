@@ -1,0 +1,50 @@
+# .NET ignore patterns
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Test results
+TestResults/
+*.trx
+
+# Visual Studio temporary files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+.history
+.ionide
+
+# Rider
+.idea/
+*.sln.iml
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# SQL Server
+*.mdf
+*.ldf
+*.ndf
+
+# EF Core
+Migrations/
+
+# Built-in app settings
+appsettings.Development.json
+
+obj/
