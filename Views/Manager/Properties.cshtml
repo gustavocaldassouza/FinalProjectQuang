@@ -6,14 +6,22 @@
 
 <div class="container premium-container fade-in">
     <div class="row align-items-center mb-4">
-        <div class="col-lg-8">
+        <div class="col-lg-6">
             <h1 class="h2 fw-bold mb-1">Portfolio Management</h1>
-            <p class="text-muted small">Administrative overview of all premium estates and properties under your supervision.</p>
+            <p class="text-muted small">Administrative overview of all premium estates under your supervision.</p>
         </div>
-        <div class="col-lg-4 text-lg-end">
-            <a asp-action="CreateProperty" class="btn btn-premium btn-primary-premium py-2 px-4 shadow-sm rounded-pill">
-                <i class="bi bi-plus-lg me-2"></i> Register New Estate
-            </a>
+        <div class="col-lg-6">
+            <div class="d-flex gap-3 justify-content-lg-end">
+                <form asp-action="Properties" method="get" class="flex-grow-1" style="max-width: 350px;">
+                    <div class="input-group shadow-sm">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-primary"></i></span>
+                        <input type="text" name="searchString" value="@ViewBag.CurrentFilter" class="form-control border-start-0 ps-0" placeholder="Search by name, city or address..." />
+                    </div>
+                </form>
+                <a asp-action="CreateProperty" class="btn btn-premium btn-primary-premium py-2 px-4 shadow-sm rounded-pill">
+                    <i class="bi bi-plus-lg me-2"></i> Register New Estate
+                </a>
+            </div>
         </div>
     </div>
 
@@ -35,24 +43,19 @@
                 <div class="col-lg-6">
                     <div class="glass-card h-100 p-0 overflow-hidden shadow-hover border-0">
                         <div class="row g-0">
-                            <div class="col-md-4 bg-primary bg-opacity-10 d-flex flex-column align-items-center justify-content-center text-primary p-4">
+                            <div class="col-md-3 bg-primary bg-opacity-10 d-flex flex-column align-items-center justify-content-center text-primary p-4">
                                 <i class="bi bi-building fs-1 mb-2"></i>
                                 <span class="badge bg-primary bg-opacity-25 text-primary-emphasis rounded-pill px-3">Estate Admin</span>
                             </div>
                             <div class="col-md-9 p-4 d-flex flex-column h-100">
-                                <div class="mb-2">
+                                <div class="mb-2 text-dark">
                                     <div class="d-flex justify-content-between align-items-start">
                                         <h2 class="fw-bold mb-0 h5">@item.Name</h2>
                                         <div class="dropdown">
                                             <button class="btn btn-link link-dark p-0" data-bs-toggle="dropdown"><i class="bi bi-three-dots fs-4"></i></button>
                                             <ul class="dropdown-menu border-0 shadow-lg p-2 rounded-4">
                                                 <li><a class="dropdown-item py-2 rounded-3" asp-action="EditProperty" asp-route-id="@item.PropertyId"><i class="bi bi-pencil-square me-2 text-primary"></i>Modify details</a></li>
-                                                <li>
-                                                    <form asp-action="DeleteProperty" method="post" onsubmit="return confirm('Are you sure you want to decommission this estate? All related apartment records will be affected.')">
-                                                        <input type="hidden" name="id" value="@item.PropertyId" />
-                                                        <button type="submit" class="dropdown-item py-2 rounded-3 text-danger"><i class="bi bi-trash-fill me-2"></i>Decommission</button>
-                                                    </form>
-                                                </li>
+                                                <li><a class="dropdown-item py-2 rounded-3" asp-action="Details" asp-route-id="@item.PropertyId"><i class="bi bi-info-circle me-2 text-info"></i>Detailed View</a></li>
                                             </ul>
                                         </div>
                                     </div>
@@ -67,9 +70,12 @@
                                     <a asp-action="Apartments" asp-route-propertyId="@item.PropertyId" class="btn btn-premium btn-primary-premium flex-grow-1 py-2 rounded-pill">
                                         Manage Inventory
                                     </a>
-                                    <a asp-action="PropertyDetails" asp-route-id="@item.PropertyId" class="btn btn-light border-0 py-2 rounded-pill px-3">
-                                        <i class="bi bi-arrow-right"></i>
-                                    </a>
+                                    <form asp-action="DeleteProperty" asp-route-id="@item.PropertyId" method="post" onsubmit="return confirm('Are you sure you want to decommission this estate? This will affect all registered apartments.')" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger border-0 py-2 rounded-pill px-3" title="Decommission Estate">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>

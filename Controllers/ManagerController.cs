@@ -20,13 +20,23 @@ namespace FinalProjectQuang.Controllers
 
         // --- Property CRUD ---
 
-        public async Task<IActionResult> Properties()
+        public async Task<IActionResult> Properties(string searchString)
         {
-            var properties = await _context.Properties.Include(p => p.Owner).ToListAsync();
+            ViewBag.CurrentFilter = searchString;
+            var query = _context.Properties.Include(p => p.Owner).AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(p => p.Name.Contains(searchString) 
+                                     || p.Address.Contains(searchString) 
+                                     || p.City.Contains(searchString));
+            }
+
+            var properties = await query.ToListAsync();
             return View(properties);
         }
 
-        public async Task<IActionResult> PropertyDetails(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
             var property = await _context.Properties
@@ -120,7 +130,15 @@ namespace FinalProjectQuang.Controllers
             }
             await _context.SaveChangesAsync();
 
-            // 2. Now delete the property (which will cascade to apartments)
+            // 2. Clear property link for related messages (keep history but categorize as general)
+            var messages = await _context.Messages.Where(m => m.PropertyId == id).ToListAsync();
+            foreach (var msg in messages)
+            {
+                msg.PropertyId = null;
+            }
+            await _context.SaveChangesAsync();
+
+            // 3. Now delete the property (which will cascade to apartments)
             _context.Properties.Remove(property);
             await _context.SaveChangesAsync();
 

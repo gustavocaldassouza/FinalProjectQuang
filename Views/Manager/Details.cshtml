@@ -1,0 +1,160 @@
+@model FinalProjectQuang.Models.Property
+
+@{
+    ViewData["Title"] = "Estate Specifications";
+}
+
+<div class="container premium-container fade-in">
+    <div class="row mb-5">
+        <div class="col-lg-8">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <a asp-action="Properties" class="btn btn-light rounded-circle p-2 shadow-sm transition-all hover-scale" title="Back to Portfolio">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+                <h1 class="h2 fw-bold mb-0">@Model.Name</h1>
+            </div>
+            <p class="text-muted small ms-5"><i class="bi bi-geo-alt me-1"></i> @Model.Address, @Model.City</p>
+        </div>
+        <div class="col-lg-4 text-lg-end pt-3">
+            <div class="d-flex gap-2 justify-content-lg-end">
+                <a asp-action="EditProperty" asp-route-id="@Model.PropertyId" class="btn btn-outline-primary rounded-pill px-4">
+                    <i class="bi bi-pencil-square me-2"></i> Modify Estate
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sidebar: Statistics & Management -->
+        <div class="col-lg-4">
+            <div class="glass-card shadow-lg p-4 mb-4 border-0">
+                <h5 class="fw-bold mb-4">Management Profile</h5>
+                <div class="d-flex align-items-center gap-3 mb-4 p-3 bg-light rounded-4">
+                    <div class="bg-primary bg-opacity-10 p-2 rounded-circle text-primary">
+                        <i class="bi bi-person-badge fs-3"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block">Proprietary Owner</small>
+                        <span class="fw-bold">@Model.Owner?.FullName</span>
+                    </div>
+                </div>
+
+                <div class="vstack gap-3">
+                    <div class="d-flex justify-content-between p-2 border-bottom">
+                        <span class="text-muted small">Total Inventory</span>
+                        <span class="fw-bold">@Model.Apartments.Count Units</span>
+                    </div>
+                    <div class="d-flex justify-content-between p-2 border-bottom">
+                        <span class="text-muted small">Portfolio Status</span>
+                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Active Estate</span>
+                    </div>
+                    <div class="d-flex justify-content-between p-2 border-bottom">
+                        <span class="text-muted small">Managed Since</span>
+                        <span class="fw-bold text-muted">Dec 2024</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card shadow-sm p-4 border-0 bg-dark text-white overflow-hidden position-relative">
+                <div class="position-relative z-1">
+                    <h6 class="fw-bold mb-2">Administrative Actions</h6>
+                    <p class="small opacity-75 mb-4">Critical system operations for this estate portfolio.</p>
+                    <form asp-action="DeleteProperty" asp-route-id="@Model.PropertyId" method="post" 
+                          onsubmit="return confirm('CRITICAL: This will decommission the entire estate and all its registered apartments. Proceed?')">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-danger w-100 py-2 rounded-pill border-opacity-25">
+                            <i class="bi bi-trash3-fill me-2"></i> Decommission Estate
+                        </button>
+                    </form>
+                </div>
+                <div class="position-absolute top-0 end-0 m-4 opacity-10">
+                    <i class="bi bi-shield-lock display-3"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content: Inventory List -->
+        <div class="col-lg-8">
+            <div class="glass-card shadow-lg p-0 overflow-hidden border-0">
+                <div class="p-4 bg-white border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0">Living Space Inventory</h5>
+                        <a asp-action="CreateApartment" asp-route-propertyId="@Model.PropertyId" class="btn btn-sm btn-primary rounded-pill px-3">
+                            <i class="bi bi-plus-lg me-1"></i> Add Unit
+                        </a>
+                    </div>
+                </div>
+                
+                @if (!Model.Apartments.Any())
+                {
+                    <div class="p-5 text-center">
+                        <i class="bi bi-layout-sidebar-inset display-3 text-muted opacity-25"></i>
+                        <h6 class="mt-3 text-muted">No residence units registered for this estate.</h6>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-0 ps-4 py-3 small text-muted text-uppercase fw-bold">Unit Number</th>
+                                    <th class="border-0 py-3 small text-muted text-uppercase fw-bold">Occupancy Status</th>
+                                    <th class="border-0 py-3 small text-muted text-uppercase fw-bold">Monthly Lease</th>
+                                    <th class="border-0 pe-4 py-3 text-end small text-muted text-uppercase fw-bold">Management</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var apartment in Model.Apartments)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary">
+                                                    <i class="bi bi-door-closed-fill"></i>
+                                                </div>
+                                                <span class="fw-bold">Suite @apartment.ApartmentNumber</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            @if (apartment.Status == ApartmentStatus.Available)
+                                            {
+                                                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">VACANT</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary bg-opacity-10 text-muted rounded-pill px-3">OCCUPIED</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <span class="fw-bold text-primary">@apartment.Rent.ToString("C")</span>
+                                        </td>
+                                        <td class="pe-4 text-end">
+                                            <div class="d-flex gap-2 justify-content-end">
+                                                <a asp-action="EditApartment" asp-route-id="@apartment.ApartmentId" class="btn btn-sm btn-light border rounded-pill" title="Edit Unit">
+                                                    <i class="bi bi-pencil-fill small"></i>
+                                                </a>
+                                                <a asp-action="DeleteApartment" asp-route-id="@apartment.ApartmentId" class="btn btn-sm btn-light border rounded-pill text-danger" title="Delete Unit">
+                                                    <i class="bi bi-trash-fill small"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-scale:hover {
+        transform: scale(1.1);
+    }
+    .transition-all {
+        transition: all 0.2s ease;
+    }
+</style>

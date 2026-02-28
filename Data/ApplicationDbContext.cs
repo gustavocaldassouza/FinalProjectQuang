@@ -70,7 +70,7 @@ namespace FinalProjectQuang.Data
                 .HasOne(m => m.Property)
                 .WithMany()
                 .HasForeignKey(m => m.PropertyId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.SetNull);
 
             // Decimal Precision for Rent
             modelBuilder.Entity<Apartment>()
