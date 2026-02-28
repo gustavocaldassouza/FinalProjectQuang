@@ -1,0 +1,65 @@
+@model IEnumerable<FinalProjectQuang.Models.Message>
+
+@{
+    ViewData["Title"] = "My Communications";
+}
+
+<div class="container premium-container fade-in">
+    <div class="row align-items-center mb-4">
+        <div class="col-lg-8">
+            <h1 class="h2 fw-bold mb-1">My Enquiries</h1>
+            <p class="text-muted small">A record of your communications with property managers.</p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <a asp-action="SendMessage" class="btn btn-premium btn-primary-premium py-2 px-4 rounded-pill shadow-sm">
+                <i class="bi bi-chat-dots me-2"></i> New Enquiry
+            </a>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center py-5">
+            <div class="glass-card p-5 rounded-5 border border-dashed shadow-sm">
+                <i class="bi bi-chat-left-text display-1 text-muted opacity-25 mb-4"></i>
+                <h3 class="fw-bold">No messages sent</h3>
+                <p class="text-muted">Reach out to managers for more details on your favorite residences.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="glass-card shadow-lg p-0 overflow-hidden border-0 rounded-4">
+                    @foreach (var msg in Model)
+                    {
+                        <div class="p-4 border-bottom transition-all @(msg.IsRead ? "bg-white" : "bg-primary bg-opacity-5")">
+                            <div class="row align-items-start">
+                                <div class="col-md-9">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <span class="badge @(msg.IsRead ? "bg-light text-muted" : "bg-primary text-white") rounded-pill">
+                                            @(msg.IsRead ? "Acknowledged" : "Delivered")
+                                        </span>
+                                        <span class="text-muted small">
+                                            <i class="bi bi-clock me-1"></i> @msg.Timestamp.ToString("MMM dd, yyyy - hh:mm tt")
+                                        </span>
+                                    </div>
+                                    <div class="vstack gap-1">
+                                        <small class="text-muted fw-bold text-uppercase x-small">To Manager: @msg.Receiver?.FullName</small>
+                                        <p class="mb-0 text-dark small">
+                                            @msg.Content
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 text-md-end pt-2">
+                                    <button class="btn btn-sm btn-light border rounded-pill px-3">View Thread</button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

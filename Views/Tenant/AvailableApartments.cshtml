@@ -1,59 +1,127 @@
 @model IEnumerable<FinalProjectQuang.Models.Apartment>
 
 @{
-    ViewData["Title"] = "Available Apartments";
+    ViewData["Title"] = "Find Your Dream Residence";
+    var images = new string[] { 
+        "https://antigravity-artifacts.s3.amazonaws.com/c7837b32-edc2-4fe5-8e7b-6c5640ce8a7d/luxury_apartment_interior_1_1772250516748.png",
+        "https://antigravity-artifacts.s3.amazonaws.com/c7837b32-edc2-4fe5-8e7b-6c5640ce8a7d/luxury_apartment_interior_2_1772250536013.png"
+    };
 }
 
-<link rel="stylesheet" href="~/css/admin.css" />
-
-<div class="admin-container fade-in">
-    <div class="admin-header">
-        <h1>Find Your New Home</h1>
-        <p class="text-muted">Browse through our premium available listings.</p>
+<div class="container premium-container fade-in">
+    <div class="row align-items-end mb-4">
+        <div class="col-lg-7">
+            <h1 class="display-5 fw-bold mb-2">Refined Living Spaces</h1>
+            <p class="text-muted fs-6">Showing @Model.Count() exclusively curated residences available for immediate acquisition.</p>
+        </div>
+        <div class="col-lg-5 text-lg-end">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb justify-content-lg-end mb-0">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="breadcrumb-item active">Available Units</li>
+                </ol>
+            </nav>
+        </div>
     </div>
 
-    <!-- Search Sidebar / Top Bar -->
-    <div class="admin-card mb-4">
-        <form asp-action="AvailableApartments" method="get" class="row g-3">
-            <div class="col-md-4">
-                <input type="text" name="searchString" class="form-control" placeholder="Search by Building or City..." value="@Context.Request.Query["searchString"]" />
+    <!-- Advanced Search & Filter -->
+    <div class="glass-card p-3 p-lg-4 mb-4 border-0 shadow-lg" style="margin-top: -1rem;">
+        <form asp-action="AvailableApartments" method="get" class="row g-4 align-items-center">
+            <div class="col-lg-4">
+                <label class="form-label fw-semibold mb-2">Location or Building</label>
+                <div class="input-group input-group-lg shadow-sm">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-primary"></i></span>
+                    <input type="text" name="searchString" class="form-control border-start-0 ps-0 fs-6" placeholder="Try 'Montréal' or 'Executive Towers'..." value="@Context.Request.Query["searchString"]" />
+                </div>
             </div>
-            <div class="col-md-3">
-                <input type="number" name="minRent" class="form-control" placeholder="Min Rent ($)" value="@Context.Request.Query["minRent"]" />
+            <div class="col-lg-3">
+                <label class="form-label fw-semibold mb-2">Price Range (Min)</label>
+                <div class="input-group input-group-lg shadow-sm">
+                    <span class="input-group-text bg-white border-end-0 text-muted">$</span>
+                    <input type="number" name="minRent" class="form-control border-start-0 ps-0 fs-6" placeholder="Minimum" value="@Context.Request.Query["minRent"]" />
+                </div>
             </div>
-            <div class="col-md-3">
-                <input type="number" name="maxRent" class="form-control" placeholder="Max Rent ($)" value="@Context.Request.Query["maxRent"]" />
+            <div class="col-lg-3">
+                <label class="form-label fw-semibold mb-2">Price Range (Max)</label>
+                <div class="input-group input-group-lg shadow-sm">
+                    <span class="input-group-text bg-white border-end-0 text-muted">$</span>
+                    <input type="number" name="maxRent" class="form-control border-start-0 ps-0 fs-6" placeholder="Maximum" value="@Context.Request.Query["maxRent"]" />
+                </div>
             </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn-premium btn-primary-premium w-100">Filter</button>
+            <div class="col-lg-2">
+                <label class="form-label invisible d-none d-lg-block mb-2">Action</label>
+                <button type="submit" class="btn btn-premium btn-primary-premium w-100 py-3 shadow-lg">
+                    Apply Filters
+                </button>
             </div>
         </form>
     </div>
 
-    <div class="row">
+    <div class="row g-5">
         @if (!Model.Any())
         {
             <div class="col-12 text-center py-5">
-                <h3 class="text-muted">No apartments found matching your criteria.</h3>
+                <div class="bg-white p-5 rounded-5 shadow-sm border border-dashed">
+                    <i class="bi bi-search display-1 text-muted opacity-25 mb-4"></i>
+                    <h3 class="fw-bold">No residences match your criteria</h3>
+                    <p class="text-muted">Try adjusting your filters or browsing all our prestige locations.</p>
+                    <a asp-action="AvailableApartments" class="btn btn-outline-primary mt-3 rounded-pill px-4">Clear All Filters</a>
+                </div>
             </div>
         }
         else
         {
+            int i = 0;
             @foreach (var item in Model)
             {
-                <div class="col-md-4 mb-4">
-                    <div class="admin-card h-100 d-flex flex-column">
-                        <div class="mb-3">
-                            <h3 class="mb-1">Unit @item.ApartmentNumber</h3>
-                            <p class="text-muted"><i class="bi bi-building"></i> @item.Property?.Name</p>
-                            <p class="small"><i class="bi bi-geo-alt"></i> @item.Property?.Address, @item.Property?.City</p>
+                var imgUrl = images[i % images.Length];
+                i++;
+                <div class="col-lg-4 col-md-6 mb-2">
+                    <div class="card border-0 glass-card h-100 overflow-hidden shadow-hover" style="border-radius: 1rem;">
+                        <div class="position-relative overflow-hidden" style="height: 200px;">
+                            <img src="@imgUrl" class="card-img-top h-100 w-100 object-fit-cover transition-scale" alt="Luxury Interior">
+                            <div class="position-absolute top-0 end-0 m-4">
+                                <span class="badge bg-white text-dark py-2 px-3 rounded-pill shadow-sm fs-6 fw-bold">
+                                    <i class="bi bi-patch-check-fill text-primary me-1"></i> Featured
+                                </span>
+                            </div>
                         </div>
-                        
-                        <div class="mt-auto">
-                            <h2 class="text-success mb-3">@item.Rent.ToString("C")<small class="text-muted" style="font-size: 0.5em">/mo</small></h2>
-                            <div class="d-grid gap-2">
-                                <a asp-action="BookAppointment" asp-route-apartmentId="@item.ApartmentId" class="btn-premium btn-primary-premium text-center">Schedule Viewing</a>
-                                <a asp-action="SendMessage" class="btn-premium btn-secondary-premium text-center">Ask a Question</a>
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h4 class="fw-bold mb-0">Unit @item.ApartmentNumber</h4>
+                                    <span class="text-primary fw-bold fs-4">@item.Rent.ToString("C")<small class="text-muted fs-6 font-weight-normal">/mo</small></span>
+                                </div>
+                                <p class="text-muted d-flex align-items-center gap-2 mb-1">
+                                    <i class="bi bi-building"></i> @item.Property?.Name
+                                </p>
+                                <p class="small text-muted d-flex align-items-center gap-2">
+                                    <i class="bi bi-geo-alt-fill text-danger opacity-75"></i> @item.Property?.Address, @item.Property?.City
+                                </p>
+                            </div>
+
+                            <div class="d-flex gap-3 mt-auto p-1 bg-light rounded-4">
+                                <div class="flex-fill text-center py-2 border-end border-white">
+                                    <i class="bi bi-layout-sidebar-inset text-muted me-1"></i>
+                                    <span class="small fw-semibold">2 Bed</span>
+                                </div>
+                                <div class="flex-fill text-center py-2 border-end border-white">
+                                    <i class="bi bi-moisture text-muted me-1"></i>
+                                    <span class="small fw-semibold">2 Bath</span>
+                                </div>
+                                <div class="flex-fill text-center py-2">
+                                    <i class="bi bi-arrows-fullscreen text-muted me-1"></i>
+                                    <span class="small fw-semibold">1,200 ft²</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 d-grid gap-2">
+                                <a asp-action="BookAppointment" asp-route-apartmentId="@item.ApartmentId" class="btn btn-premium btn-primary-premium py-3 rounded-4">
+                                    Book Viewing Portfolio
+                                </a>
+                                <a asp-action="SendMessage" asp-route-managerId="@item.Property?.OwnerId" class="btn btn-outline-dark border-0 bg-light py-3 rounded-4 fw-semibold">
+                                    Consult Concierge
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -62,3 +130,12 @@
         }
     </div>
 </div>
+
+<style>
+    .transition-scale {
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card:hover .transition-scale {
+        transform: scale(1.1);
+    }
+</style>

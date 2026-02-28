@@ -153,10 +153,6 @@ namespace FinalProjectQuang.Controllers
 
         public async Task<IActionResult> Appointments()
         {
-            // Assuming Manager ID is retrieved from claims. For demo, we might need a way to identify "This" manager.
-            // In a real app: var managerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            
-            // To make it functional for the user without complex auth setup:
             var managerEmail = User.Identity?.Name;
             var manager = await _context.Users.FirstOrDefaultAsync(u => u.Email == managerEmail);
 
@@ -169,6 +165,43 @@ namespace FinalProjectQuang.Controllers
                 .ToListAsync();
 
             return View(appointments);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ConfirmAppointment(int appointmentId)
+        {
+            var appointment = await _context.Appointments.FindAsync(appointmentId);
+            if (appointment != null)
+            {
+                appointment.IsConfirmed = true;
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Appointments));
+        }
+
+        // --- Messages ---
+
+        public async Task<IActionResult> Messages()
+        {
+            var managerEmail = User.Identity?.Name;
+            var manager = await _context.Users.FirstOrDefaultAsync(u => u.Email == managerEmail);
+
+            var messages = await _context.Messages
+                .Include(m => m.Sender)
+                .Where(m => manager == null || m.ReceiverId == manager.UserId)
+                .OrderByDescending(m => m.Timestamp)
+                .ToListAsync();
+
+            if (messages.Any(m => !m.IsRead))
+            {
+                foreach(var m in messages.Where(m => !m.IsRead))
+                {
+                    m.IsRead = true;
+                }
+                await _context.SaveChangesAsync();
+            }
+
+            return View(messages);
         }
     }
 }

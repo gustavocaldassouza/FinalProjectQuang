@@ -1,54 +1,114 @@
 @model IEnumerable<FinalProjectQuang.Models.Appointment>
 
 @{
-    ViewData["Title"] = "My Appointments";
+    ViewData["Title"] = "Executive Appointment Scheduler";
 }
 
-<link rel="stylesheet" href="~/css/admin.css" />
-
-<div class="admin-container fade-in">
-    <div class="admin-header">
-        <h1>Scheduled Appointments</h1>
-        <p class="text-muted">Stay on top of your viewing schedule.</p>
+<div class="container premium-container fade-in">
+    <div class="row align-items-center mb-4">
+        <div class="col-lg-8">
+            <h1 class="h2 fw-bold mb-1">Viewing Schedule</h1>
+            <p class="text-muted small">Coordinate and prepare for property viewings with your potential residents.</p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <div class="glass-card shadow-sm p-2 d-inline-flex gap-3">
+                <div class="text-center">
+                    <span class="d-block h5 fw-bold text-warning mb-0">@Model.Count(a => !a.IsConfirmed)</span>
+                    <span class="text-muted x-small fw-bold">Pending</span>
+                </div>
+                <div class="vr text-muted opacity-25"></div>
+                <div class="text-center">
+                    <span class="d-block h5 fw-bold text-success mb-0">@Model.Count(a => a.IsConfirmed)</span>
+                    <span class="text-muted x-small fw-bold">Confirmed</span>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="row">
-        @if (!Model.Any())
-        {
-            <div class="col-12 text-center py-5">
-                <h4 class="text-muted">No appointments scheduled.</h4>
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center py-5">
+            <div class="glass-card p-5 rounded-5 border border-dashed">
+                <i class="bi bi-calendar-x display-1 text-muted opacity-25 mb-4"></i>
+                <h3 class="fw-bold">No viewings currently scheduled</h3>
+                <p class="text-muted">New requests from potential residents will appear here.</p>
             </div>
-        }
-        else
-        {
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
             @foreach (var item in Model)
             {
-                <div class="col-md-4 mb-4">
-                    <div class="admin-card" style="border-left: 5px solid @(item.IsConfirmed ? "#27ae60" : "#f39c12")">
-                        <div class="d-flex justify-content-between">
-                            <span class="badge @(item.IsConfirmed ? "badge-tenant" : "badge-manager")">
-                                @(item.IsConfirmed ? "Confirmed" : "Pending")
-                            </span>
-                            <small class="text-muted">ID: #@item.AppointmentId</small>
-                        </div>
-                        <h4 class="mt-2 mb-1">@item.AppointmentDate.ToString("MMM dd, yyyy")</h4>
-                        <p class="mb-3"><strong>Time:</strong> @item.AppointmentDate.ToString("hh:mm tt")</p>
-                        
-                        <hr />
-                        
-                        <p class="mb-1"><strong>Tenant:</strong> @item.Tenant?.FullName</p>
-                        <p class="mb-1"><strong>Apartment:</strong> Unit @item.Apartment?.ApartmentNumber</p>
-                        <p class="mb-3"><strong>Property:</strong> @item.Apartment?.Property?.Name</p>
-                        
-                        @if (!string.IsNullOrEmpty(item.Notes))
-                        {
-                            <div class="bg-light p-2 rounded small text-muted">
-                                <strong>Notes:</strong> @item.Notes
+                <div class="col-lg-4 col-md-6 mb-2">
+                    <div class="glass-card h-100 p-0 overflow-hidden shadow-hover border-0" 
+                         style="border-top: @(item.IsConfirmed ? "6px solid #10b981" : "6px solid #f59e0b") !important;">
+                        <div class="p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <span class="badge @(item.IsConfirmed ? "bg-success bg-opacity-10 text-success border-success" : "bg-warning bg-opacity-10 text-warning border-warning") border-2 px-3 py-2 rounded-pill fw-bold">
+                                    <i class="bi @(item.IsConfirmed ? "bi-check-circle-fill" : "bi-hourglass-split") me-1"></i>
+                                    @(item.IsConfirmed ? "Appointment Confirmed" : "Awaiting Review")
+                                </span>
+                                <small class="text-muted fw-bold opacity-50">#AP-@item.AppointmentId</small>
                             </div>
-                        }
+
+                            <div class="mb-3">
+                                <h3 class="fw-bold fs-4 mb-0">
+                                    <i class="bi bi-clock text-primary me-1"></i> @item.AppointmentDate.ToString("hh:mm tt")
+                                </h3>
+                                <p class="text-dark fw-semibold mb-0 small">@item.AppointmentDate.ToString("MMMM dd, yyyy")</p>
+                            </div>
+
+                            <hr class="opacity-10">
+
+                            <div class="vstack gap-3 mb-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bg-primary bg-opacity-10 p-2 rounded-circle text-primary">
+                                        <i class="bi bi-person-fill fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <small class="d-block text-muted">Potential Tenant</small>
+                                        <span class="fw-bold">@item.Tenant?.FullName</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bg-dark bg-opacity-5 p-2 rounded-circle text-dark">
+                                        <i class="bi bi-door-open-fill fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <small class="d-block text-muted">Requested Unit</small>
+                                        <span class="fw-bold">Unit @item.Apartment?.ApartmentNumber <span class="text-muted fw-normal opacity-75">@@ @item.Apartment?.Property?.Name</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            @if (!string.IsNullOrEmpty(item.Notes))
+                            {
+                                <div class="bg-light p-3 rounded-4 small text-muted mb-4 border-0">
+                                    <i class="bi bi-chat-left-text me-2"></i> <strong>Inquiry Note:</strong><br>
+                                    <span class="fst-italic">"@item.Notes"</span>
+                                </div>
+                            }
+
+                            <div class="mt-auto d-grid gap-2">
+                                @if (!item.IsConfirmed)
+                                {
+                                    <form asp-action="ConfirmAppointment" method="post" class="d-grid shadow-sm rounded-3">
+                                        <input type="hidden" name="appointmentId" value="@item.AppointmentId" />
+                                        <button type="submit" class="btn btn-premium btn-primary-premium py-1 rounded-3 fw-bold small">
+                                            Confirm
+                                        </button>
+                                    </form>
+                                }
+                                <div class="d-flex gap-2">
+                                    <a href="#" class="btn btn-light bg-opacity-25 flex-grow-1 py-2 rounded-4 fw-semibold text-muted">Reschedule</a>
+                                    <button class="btn btn-outline-danger border-0 bg-danger bg-opacity-5 py-2 px-3 rounded-4"><i class="bi bi-x-lg"></i></button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             }
-        }
-    </div>
+        </div>
+    }
 </div>

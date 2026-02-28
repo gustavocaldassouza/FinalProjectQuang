@@ -1,61 +1,119 @@
 @model IEnumerable<FinalProjectQuang.Models.Apartment>
 
 @{
-    ViewData["Title"] = "Manage Apartments";
+    ViewData["Title"] = "Unit Inventory Management";
 }
 
-<link rel="stylesheet" href="~/css/admin.css" />
-
-<div class="admin-container fade-in">
-    <div class="admin-header">
-        <h1>Apartment Inventory</h1>
-        <a asp-action="CreateApartment" class="btn-premium btn-primary-premium">+ Add Apartment</a>
+<div class="container premium-container fade-in">
+    <div class="row align-items-center mb-4">
+        <div class="col-lg-8">
+            <h1 class="h2 fw-bold mb-1">Apartment Inventory</h1>
+            <p class="text-muted small">Manage unit status, availability, and rental terms for your estates.</p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <a asp-action="CreateApartment" class="btn btn-premium btn-primary-premium py-2 px-4 shadow-sm rounded-pill">
+                <i class="bi bi-plus-lg me-2"></i> Register New Unit
+            </a>
+        </div>
     </div>
 
-    <div class="admin-card">
-        <table class="premium-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Number</th>
-                    <th>Property</th>
-                    <th>Rent</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model) {
-                    <tr>
-                        <td>@item.ApartmentId</td>
-                        <td><strong>Unit @item.ApartmentNumber</strong></td>
-                        <td>@item.Property?.Name</td>
-                        <td>@item.Rent.ToString("C")</td>
-                        <td>
-                            <form asp-action="UpdateApartmentStatus" method="post" class="d-inline">
-                                <input type="hidden" name="apartmentId" value="@item.ApartmentId" />
-                                <select name="status" onchange="this.form.submit()" class="form-control form-control-sm d-inline-block w-auto" 
-                                        style="border: none; background: #f1f4f6; font-weight: 600;">
-                                    @foreach (var status in Enum.GetValues(typeof(FinalProjectQuang.Models.ApartmentStatus)))
-                                    {
-                                        if (item.Status.ToString() == status.ToString())
-                                        {
-                                            <option value="@status" selected>@status</option>
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center py-5">
+            <div class="glass-card p-5 rounded-5 border border-dashed">
+                <i class="bi bi-house-door display-1 text-muted opacity-25 mb-4"></i>
+                <h3 class="fw-bold">No units registered for this property</h3>
+                <p class="text-muted">Start by adding your first luxury unit to the portfolio.</p>
+                <a asp-action="CreateApartment" class="btn btn-primary mt-3 rounded-pill px-4">Begin Registration</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="glass-card shadow-lg p-0 overflow-hidden border-0 mb-5">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-primary bg-opacity-10 text-primary-emphasis fw-bold fs-6">
+                        <tr>
+                            <th class="ps-5 py-4">Unit Identification</th>
+                            <th class="py-4">Property</th>
+                            <th class="py-4">Monthly Investment</th>
+                            <th class="py-4">Real-time Status</th>
+                            <th class="pe-5 py-4 text-end">Administration</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model) {
+                            <tr class="transition-all hover-light">
+                                <td class="ps-4 py-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="bg-primary bg-opacity-10 p-1 rounded text-primary">
+                                            <i class="bi bi-door-closed fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold mb-0">Unit @item.ApartmentNumber</h6>
+                                            <small class="text-muted x-small">Ref: #UX-@item.ApartmentId</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3">
+                                    <span class="fw-semibold text-dark small">@item.Property?.Name</span>
+                                    <br>
+                                    <small class="text-muted opacity-75 x-small">@item.Property?.City</small>
+                                </td>
+                                <td class="py-3">
+                                    <span class="fw-bold text-success">@item.Rent.ToString("C")</span>
+                                </td>
+                                <td class="py-3">
+                                    <form asp-action="UpdateApartmentStatus" method="post" class="d-inline">
+                                        <input type="hidden" name="apartmentId" value="@item.ApartmentId" />
+                                        @{
+                                            string statusClass = item.Status switch {
+                                                FinalProjectQuang.Models.ApartmentStatus.Available => "bg-success bg-opacity-10 text-success border-success",
+                                                FinalProjectQuang.Models.ApartmentStatus.Rented => "bg-danger bg-opacity-10 text-danger border-danger",
+                                                FinalProjectQuang.Models.ApartmentStatus.UnderMaintenance => "bg-warning bg-opacity-10 text-warning border-warning",
+                                                _ => "bg-secondary bg-opacity-10 text-secondary border-secondary"
+                                            };
                                         }
-                                        else
-                                        {
-                                            <option value="@status">@status</option>
-                                        }
-                                    }
-                                </select>
-                            </form>
-                        </td>
-                        <td>
-                            <a asp-action="EditApartment" asp-route-id="@item.ApartmentId" class="btn-premium btn-secondary-premium btn-sm">Edit</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                                        <select name="status" onchange="this.form.submit()" class="form-select form-select-sm @statusClass border-opacity-25 fw-bold rounded-pill px-2 py-1 x-small shadow-sm">
+                                            @foreach (var status in Enum.GetValues(typeof(FinalProjectQuang.Models.ApartmentStatus)))
+                                            {
+                                                if (item.Status.ToString() == status.ToString())
+                                                {
+                                                    <option value="@status" selected>● @status</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@status">@status</option>
+                                                }
+                                            }
+                                        </select>
+                                    </form>
+                                </td>
+                                <td class="pe-5 py-4 text-end">
+                                    <div class="btn-group">
+                                        <a asp-action="EditApartment" asp-route-id="@item.ApartmentId" class="btn btn-outline-primary py-2 px-3 rounded-start-pill border-opacity-25 shadow-sm">
+                                            <i class="bi bi-pencil-square me-1"></i> Edit
+                                        </a>
+                                        <button class="btn btn-outline-danger py-2 px-3 rounded-end-pill border-opacity-25 shadow-sm">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
 </div>
+
+<style>
+    .hover-light:hover {
+        background-color: rgba(37, 99, 235, 0.02) !important;
+    }
+    .transition-all {
+        transition: all 0.2s ease;
+    }
+</style>

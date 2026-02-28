@@ -1,0 +1,79 @@
+@model IEnumerable<FinalProjectQuang.Models.Appointment>
+
+@{
+    ViewData["Title"] = "My Scheduled Viewings";
+}
+
+<div class="container premium-container fade-in">
+    <div class="row align-items-center mb-4">
+        <div class="col-lg-8">
+            <h1 class="h2 fw-bold mb-1">Viewing Schedule</h1>
+            <p class="text-muted small">Track your upcoming property tours and management appointments.</p>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center py-5">
+            <div class="glass-card p-5 rounded-5 border border-dashed shadow-sm">
+                <i class="bi bi-calendar-event display-1 text-muted opacity-25 mb-4"></i>
+                <h3 class="fw-bold">No viewings scheduled yet</h3>
+                <p class="text-muted">Explore our available residences and book your first viewing.</p>
+                <a asp-action="AvailableApartments" class="btn btn-primary mt-3 rounded-pill px-4">Browse Apartments</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="glass-card shadow-lg p-0 overflow-hidden border-0 h-100 transition-all hover-scale" 
+                         style="border-top: 6px solid @(item.IsConfirmed ? "#10b981" : "#6366f1") !important;">
+                        <div class="p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <span class="badge @(item.IsConfirmed ? "bg-success text-white" : "bg-primary text-white") rounded-pill px-3 py-2 fw-bold">
+                                    <i class="bi @(item.IsConfirmed ? "bi-check-circle" : "bi-clock-history") me-1"></i>
+                                    @(item.IsConfirmed ? "Confirmed" : "Pending Approval")
+                                </span>
+                                <small class="text-muted fw-bold">ID #@item.AppointmentId</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <h4 class="fw-bold fs-4 mb-0">@item.AppointmentDate.ToString("hh:mm tt")</h4>
+                                <p class="text-dark fw-semibold mb-0 small">@item.AppointmentDate.ToString("MMMM dd, yyyy")</p>
+                            </div>
+
+                            <div class="vstack gap-2 mb-4">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-building text-primary"></i>
+                                    <span class="fw-bold">Unit @item.Apartment?.ApartmentNumber</span>
+                                </div>
+                                <div class="text-muted small ps-4">
+                                    @item.Apartment?.Property?.Name
+                                </div>
+                                <div class="text-muted small ps-4">
+                                    @item.Apartment?.Property?.Address, @item.Apartment?.Property?.City
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(item.Notes))
+                            {
+                                <div class="bg-light p-3 rounded-3 small text-muted mb-4 italic">
+                                    " @item.Notes "
+                                </div>
+                            }
+
+                            <div class="mt-auto">
+                                <button class="btn btn-outline-danger w-100 rounded-pill py-2">
+                                    Cancel Booking
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

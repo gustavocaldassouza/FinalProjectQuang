@@ -1,0 +1,90 @@
+@model IEnumerable<FinalProjectQuang.Models.Message>
+
+@{
+    ViewData["Title"] = "Tenant Communication Hub";
+}
+
+<div class="container premium-container fade-in">
+    <div class="row align-items-center mb-4">
+        <div class="col-lg-8">
+            <h1 class="h2 fw-bold mb-1">Message Center</h1>
+            <p class="text-muted small">Direct inquiries and communications from your residents.</p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <div class="glass-card shadow-sm p-2 d-inline-flex gap-3">
+                <div class="text-center">
+                    <span class="d-block h5 fw-bold text-primary mb-0">@Model.Count()</span>
+                    <span class="text-muted x-small fw-bold">Total</span>
+                </div>
+                <div class="vr text-muted opacity-25"></div>
+                <div class="text-center">
+                    <span class="d-block h5 fw-bold text-success mb-0">@Model.Count(m => m.Timestamp > DateTime.Now.AddDays(-1))</span>
+                    <span class="text-muted x-small fw-bold">New</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center py-5">
+            <div class="glass-card p-5 rounded-5 border border-dashed">
+                <i class="bi bi-chat-dots display-1 text-muted opacity-25 mb-4"></i>
+                <h3 class="fw-bold">Your inbox is currently empty</h3>
+                <p class="text-muted">Direct messages from potential tenants will appear here for your review.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="glass-card shadow-lg border-0 overflow-hidden">
+                    @foreach (var msg in Model)
+                    {
+                        <div class="p-4 border-bottom hover-light transition-all @(msg.IsRead ? "" : "bg-primary bg-opacity-5")">
+                            <div class="row align-items-center">
+                                <div class="col-md-3 mb-3 mb-md-0">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="bg-primary bg-opacity-10 p-1 rounded-circle text-primary d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                            <i class="bi bi-person-fill fs-6"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold mb-0 small">@msg.Sender?.FullName</h6>
+                                            <small class="text-muted x-small">Resident</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <p class="mb-0 text-dark opacity-75">
+                                        @msg.Content
+                                    </p>
+                                </div>
+                                <div class="col-md-3 text-md-end">
+                                    <div class="mb-2">
+                                        <span class="text-muted small">
+                                            <i class="bi bi-clock me-1"></i> @msg.Timestamp.ToString("MMM dd, hh:mm tt")
+                                        </span>
+                                    </div>
+                                    <div class="d-flex gap-2 justify-content-md-end">
+                                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3">Reply</button>
+                                        <button class="btn btn-sm btn-light rounded-circle"><i class="bi bi-archive"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .hover-light:hover {
+        background-color: rgba(37, 99, 235, 0.02) !important;
+    }
+    .transition-all {
+        transition: all 0.2s ease;
+    }
+</style>

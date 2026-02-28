@@ -1,40 +1,56 @@
 @{
-    ViewData["Title"] = "Contact Manager";
+    ViewData["Title"] = "Direct Concierge Inbox";
 }
 
-<link rel="stylesheet" href="~/css/admin.css" />
-
-<div class="admin-container fade-in">
-    <div class="admin-header">
-        <h1>Send Message</h1>
-        <a asp-action="AvailableApartments" class="btn-premium btn-secondary-premium">Cancel</a>
-    </div>
-
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="admin-card">
-                <form asp-action="SendMessage" id="messageForm">
-                    <div class="form-group">
-                        <label class="form-label">To: Manager</label>
-                        <select name="receiverId" id="managerSelect" class="form-control" asp-items="ViewBag.Managers">
-                            <option value="">-- Choose a Manager --</option>
-                        </select>
+<div class="container premium-container fade-in">
+    <div class="row min-vh-75 justify-content-center align-items-center">
+        <div class="col-lg-6">
+            <div class="glass-card shadow-lg p-0 overflow-hidden" style="border-radius: 1.5rem;">
+                <div class="p-4 bg-dark text-white position-relative">
+                    <h3 class="fw-bold mb-1">Direct Communication</h3>
+                    <p class="opacity-75 small mb-0">Speak directly to our luxury estate curators.</p>
+                    <div class="position-absolute top-0 end-0 m-4 opacity-10">
+                        <i class="bi bi-chat-right-quote display-1"></i>
                     </div>
+                </div>
+                
+                <div class="p-4">
+                    <form asp-action="SendMessage" id="messageForm" class="row g-4">
+                        <div class="col-12">
+                            <label class="form-label fs-6 fw-bold">Select Estate Specialist</label>
+                            <div class="input-group shadow-sm">
+                                <span class="input-group-text bg-white border-end-0 text-primary"><i class="bi bi-person-circle"></i></span>
+                                <select name="receiverId" id="managerSelect" class="form-select border-start-0 ps-0 small" asp-items="ViewBag.Managers">
+                                    <option value="">-- Choose Your Specialist --</option>
+                                </select>
+                            </div>
+                        </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Message Content</label>
-                        <textarea name="content" id="messageContent" class="form-control" rows="6" placeholder="Type your message here..."></textarea>
-                        <div id="contentError" class="text-danger" style="display:none;">Please enter some text before sending.</div>
-                    </div>
+                        <div class="col-12">
+                            <label class="form-label fs-6 fw-bold">Your Inquiry</label>
+                            <div class="form-group">
+                                <textarea name="content" id="messageContent" class="form-control small shadow-sm p-3" rows="6" style="border-radius: 1rem;" placeholder="How can our management team assist you today?"></textarea>
+                                <div id="contentError" class="text-danger small mt-2" style="display:none;">
+                                    <i class="bi bi-exclamation-triangle-fill me-1"></i> Please provide details for your inquiry.
+                                </div>
+                            </div>
+                        </div>
 
-                    <div class="form-group mt-4">
-                        <button type="submit" class="btn-premium btn-primary-premium w-100">Send Message</button>
-                    </div>
-                </form>
-            </div>
-            
-            <div class="text-center mt-3">
-                <p class="text-muted"><i class="bi bi-info-circle"></i> Messages sent are delivered instantly to the manager's dashboard.</p>
+                        <div class="col-12 pt-2">
+                            <button type="submit" class="btn btn-premium btn-primary-premium w-100 py-2 shadow-sm rounded-pill">
+                                Transmit Message <i class="bi bi-send-fill ms-2"></i>
+                            </button>
+                            <p class="text-center text-muted mt-3 x-small">
+                                <i class="bi bi-clock-history me-1"></i> Estimated response time: &lt; 2 hours During Office Hours
+                            </p>
+                            <div class="d-flex justify-content-center mt-3">
+                                <a asp-action="AvailableApartments" class="text-muted text-decoration-none">
+                                    <i class="bi bi-chevron-left"></i> Cancel and Return to Listings
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -65,9 +81,7 @@
                 contentError.style.display = 'none';
             }
 
-            if (!isValid) {
-                e.preventDefault();
-            }
+            if (!isValid) e.preventDefault();
         });
     </script>
 }

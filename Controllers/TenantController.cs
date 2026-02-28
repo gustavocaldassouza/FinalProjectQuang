@@ -129,5 +129,39 @@ namespace FinalProjectQuang.Controllers
 
             return View();
         }
+        // 4. View scheduled appointments for the tenant
+        public async Task<IActionResult> MyAppointments()
+        {
+            var tenantEmail = User.Identity?.Name;
+            var tenant = await _context.Users.FirstOrDefaultAsync(u => u.Email == tenantEmail);
+
+            if (tenant == null) return RedirectToAction("Login", "Account");
+
+            var appointments = await _context.Appointments
+                .Include(a => a.Apartment)
+                .ThenInclude(ap => ap.Property)
+                .Where(a => a.TenantId == tenant.UserId)
+                .OrderBy(a => a.AppointmentDate)
+                .ToListAsync();
+
+            return View(appointments);
+        }
+
+        // 5. View sent messages (Inbox) for the tenant
+        public async Task<IActionResult> MyMessages()
+        {
+            var tenantEmail = User.Identity?.Name;
+            var tenant = await _context.Users.FirstOrDefaultAsync(u => u.Email == tenantEmail);
+
+            if (tenant == null) return RedirectToAction("Login", "Account");
+
+            var messages = await _context.Messages
+                .Include(m => m.Receiver)
+                .Where(m => m.SenderId == tenant.UserId)
+                .OrderByDescending(m => m.Timestamp)
+                .ToListAsync();
+
+            return View(messages);
+        }
     }
 }

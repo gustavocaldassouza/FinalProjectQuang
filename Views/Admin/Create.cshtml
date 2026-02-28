@@ -1,52 +1,77 @@
 @model FinalProjectQuang.Models.User
 
 @{
-    ViewData["Title"] = "Create User";
+    ViewData["Title"] = "User Account Provisioning";
 }
 
-<link rel="stylesheet" href="~/css/admin.css" />
+<div class="container premium-container fade-in">
+    <div class="row min-vh-75 justify-content-center align-items-center">
+        <div class="col-lg-5">
+            <div class="glass-card shadow-lg p-0 overflow-hidden border-0" style="border-radius: 1rem;">
+                <div class="p-4 bg-primary text-white position-relative">
+                    <h3 class="fw-bold mb-1">Provision New Account</h3>
+                    <p class="opacity-75 small mb-0">Security-first personnel onboarding for your estate network.</p>
+                    <div class="position-absolute top-0 end-0 m-4 opacity-10">
+                        <i class="bi bi-person-plus-fill display-1"></i>
+                    </div>
+                </div>
+                
+                <div class="p-4">
+                    <form asp-action="Create" class="row g-4">
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+                        
+                        <div class="col-12">
+                            <label class="form-label fs-6 fw-bold">Full Name</label>
+                            <div class="input-group shadow-sm">
+                                <span class="input-group-text bg-white border-end-0 text-primary"><i class="bi bi-person"></i></span>
+                                <input asp-for="FullName" class="form-control border-left-0 ps-0 fs-6" placeholder="Example: Johnathan Sterling" />
+                            </div>
+                            <span asp-validation-for="FullName" class="text-danger small mt-1 d-block"></span>
+                        </div>
 
-<div class="admin-container fade-in">
-    <div class="admin-header">
-        <h1>Add New Manager/Tenant</h1>
-        <a asp-action="Index" class="btn-premium btn-secondary-premium">Back to List</a>
-    </div>
+                        <div class="col-12">
+                            <label class="form-label fs-6 fw-bold">Email (Digital Identity)</label>
+                            <div class="input-group shadow-sm">
+                                <span class="input-group-text bg-white border-end-0 text-primary"><i class="bi bi-envelope-at"></i></span>
+                                <input asp-for="Email" class="form-control border-left-0 ps-0 fs-6" placeholder="john.sterling@luxuryresidence.com" />
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger small mt-1 d-block"></span>
+                        </div>
 
-    <div class="admin-card">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            
-            <div class="form-group">
-                <label asp-for="FullName" class="form-label">Full Name</label>
-                <input asp-for="FullName" class="form-control" placeholder="Enter user's full name" />
-                <span asp-validation-for="FullName" class="text-danger"></span>
+                        <div class="col-12">
+                            <label class="form-label fs-6 fw-bold">System Password</label>
+                            <div class="input-group shadow-sm">
+                                <span class="input-group-text bg-white border-end-0 text-primary"><i class="bi bi-shield-lock"></i></span>
+                                <input asp-for="Password" type="password" class="form-control border-left-0 ps-0 fs-6" placeholder="••••••••••••" />
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fs-6 fw-bold">Strategic System Role</label>
+                            <div class="input-group shadow-sm">
+                                <span class="input-group-text bg-white border-end-0 text-primary"><i class="bi bi-briefcase"></i></span>
+                                <select asp-for="Role" class="form-select border-left-0 ps-0 fs-6" asp-items='Html.GetEnumSelectList<FinalProjectQuang.Models.UserRole>().Where(r => r.Text != "Owner")'>
+                                    <option value="">-- Assign System Access --</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="Role" class="text-danger small mt-1 d-block"></span>
+                        </div>
+
+                        <div class="col-12 pt-4">
+                            <button type="submit" class="btn btn-premium btn-primary-premium w-100 py-2 shadow-sm rounded-pill">
+                                Initialize Account Profile <i class="bi bi-arrow-right-short ms-2"></i>
+                            </button>
+                            <div class="d-flex justify-content-center mt-3">
+                                <a asp-action="Index" class="text-muted text-decoration-none">
+                                    <i class="bi bi-chevron-left"></i> Abort Onboarding and Exit
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <div class="form-group">
-                <label asp-for="Email" class="form-label">Email Address</label>
-                <input asp-for="Email" class="form-control" placeholder="email@example.com" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Password" class="form-label">Password</label>
-                <input asp-for="Password" type="password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Role" class="form-label">Role</label>
-                <select asp-for="Role" class="form-control">
-                    <option value="Manager">Manager</option>
-                    <option value="Tenant">Tenant</option>
-                </select>
-                <span asp-validation-for="Role" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mt-4">
-                <button type="submit" class="btn-premium btn-primary-premium w-100">Create User</button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
