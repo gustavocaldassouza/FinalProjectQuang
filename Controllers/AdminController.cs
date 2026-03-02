@@ -12,10 +12,12 @@ namespace FinalProjectQuang.Controllers
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly Microsoft.AspNetCore.Identity.IPasswordHasher<User> _passwordHasher;
 
-        public AdminController(ApplicationDbContext context)
+        public AdminController(ApplicationDbContext context, Microsoft.AspNetCore.Identity.IPasswordHasher<User> passwordHasher)
         {
             _context = context;
+            _passwordHasher = passwordHasher;
         }
 
         // GET: Admin/Index
@@ -61,6 +63,9 @@ namespace FinalProjectQuang.Controllers
                     return View(user);
                 }
 
+                // Hash the password before saving
+                user.Password = _passwordHasher.HashPassword(user, user.Password);
+
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -94,6 +99,20 @@ namespace FinalProjectQuang.Controllers
                     {
                         ModelState.AddModelError("Role", "Cannot promote to Owner role.");
                         return View(user);
+                    }
+
+                    var existingUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserId == id);
+                    if (existingUser != null)
+                    {
+                        // Only re-hash if the password in the form is different from the hashed one in the DB.
+                        // Since hashes are always long strings, if the input is short like "123", we should definitely hash.
+                        // Actually, if user types the same hash back, we shouldn't change it.
+                        // A safer way is checking if the password field was modified (but standard MVC binding is tricky here).
+                        
+                        if (user.Password != existingUser.Password)
+                        {
+                            user.Password = _passwordHasher.HashPassword(user, user.Password);
+                        }
                     }
 
                     _context.Update(user);

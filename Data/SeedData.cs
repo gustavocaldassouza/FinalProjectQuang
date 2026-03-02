@@ -7,14 +7,21 @@ namespace FinalProjectQuang.Data
     {
         public static async Task Initialize(IServiceProvider serviceProvider)
         {
+            var hasher = serviceProvider.GetRequiredService<Microsoft.AspNetCore.Identity.IPasswordHasher<User>>();
             using (var context = new ApplicationDbContext(
                 serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>()))
             {
                 if (!context.Users.Any())
                 {
-                    var owner = new User { FullName = "Owner User", Email = "owner@rent.com", Password = "123", Role = UserRole.Owner };
-                    var manager = new User { FullName = "Manager Mike", Email = "manager@rent.com", Password = "123", Role = UserRole.Manager };
-                    var tenant = new User { FullName = "Tenant Tom", Email = "tenant@rent.com", Password = "123", Role = UserRole.Tenant };
+                    var owner = new User { FullName = "Owner User", Email = "owner@rent.com", Role = UserRole.Owner };
+                    owner.Password = hasher.HashPassword(owner, "123");
+                    
+                    var manager = new User { FullName = "Manager Mike", Email = "manager@rent.com", Role = UserRole.Manager };
+                    manager.Password = hasher.HashPassword(manager, "123");
+                    
+                    var tenant = new User { FullName = "Tenant Tom", Email = "tenant@rent.com", Role = UserRole.Tenant };
+                    tenant.Password = hasher.HashPassword(tenant, "123");
+                    
                     context.Users.AddRange(owner, manager, tenant);
                     await context.SaveChangesAsync();
                 }

@@ -11,10 +11,12 @@ namespace FinalProjectQuang.Controllers
     public class AccountController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly Microsoft.AspNetCore.Identity.IPasswordHasher<User> _passwordHasher;
 
-        public AccountController(ApplicationDbContext context)
+        public AccountController(ApplicationDbContext context, Microsoft.AspNetCore.Identity.IPasswordHasher<User> passwordHasher)
         {
             _context = context;
+            _passwordHasher = passwordHasher;
         }
 
         [HttpGet]
@@ -26,22 +28,26 @@ namespace FinalProjectQuang.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(string email, string password)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
 
             if (user != null)
             {
-                var claims = new List<Claim>
+                var result = _passwordHasher.VerifyHashedPassword(user, user.Password, password);
+                if (result == Microsoft.AspNetCore.Identity.PasswordVerificationResult.Success)
                 {
-                    new Claim(ClaimTypes.Name, user.Email),
-                    new Claim(ClaimTypes.Role, user.Role.ToString()),
-                    new Claim("FullName", user.FullName)
-                };
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, user.Email),
+                        new Claim(ClaimTypes.Role, user.Role.ToString()),
+                        new Claim("FullName", user.FullName)
+                    };
 
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-                return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Home");
+                }
             }
 
             ViewBag.Error = "Invalid credentials. Try Again!";
@@ -86,9 +92,11 @@ namespace FinalProjectQuang.Controllers
             {
                 FullName = fullName,
                 Email = email,
-                Password = password, // Note: In a real app, passwords should be hashed!
                 Role = UserRole.Tenant
             };
+
+            // Securely hash the password
+            newUser.Password = _passwordHasher.HashPassword(newUser, password);
 
             _context.Users.Add(newUser);
             await _context.SaveChangesAsync();

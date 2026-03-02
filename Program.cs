@@ -11,6 +11,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Password Hashing Service
+builder.Services.AddScoped<Microsoft.AspNetCore.Identity.IPasswordHasher<FinalProjectQuang.Models.User>, Microsoft.AspNetCore.Identity.PasswordHasher<FinalProjectQuang.Models.User>>();
+
 // Authentication Configuration (Cookie-based for simplicity in this demo)
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
